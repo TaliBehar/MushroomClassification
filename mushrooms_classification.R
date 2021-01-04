@@ -204,9 +204,12 @@ plot(chi2_test_for_class,
 
 # Train rf model and find best parameters
 
+set.seed(3, sample.kind="Rounding") # if using R 3.5 or earlier, use `set.seed(3)`
 train_control <- trainControl(method="cv", number = 10, p = 0.8) # use 10-folds cross-validation 
 tune_grid <- data.frame(mtry =  c(1:5)) # find the best value for tuning mtry
 # Train using "caret"
+
+set.seed(13, sample.kind="Rounding") # if using R 3.5 or earlier, use 'set.seed(13)'
 train_rf <- train(train_set, y,
                   method = "rf",
                   ntree = 200, 
@@ -248,7 +251,7 @@ varImpPlot(fit_rf)
 varImp(fit_rf)%>%
   mutate(char = rownames(.))%>%
   ggplot(aes(x = reorder(char,Overall),y = Overall))+
-  geom_bar(stat = "identity")+
+  geom_bar(stat = "identity", fill = "lightblue")+
   coord_flip()+
   labs(title = "Variable importance for random forest model", 
        x = "characteristics", y = "variable importance")
@@ -311,7 +314,7 @@ varImp(fit_ct) %>%
 varImp(fit_ct)%>%
   mutate(char = rownames(.))%>%
   ggplot(aes(x = reorder(char,Overall),y = Overall))+
-  geom_bar(stat = "identity")+
+  geom_bar(stat = "identity", fill="lightblue")+
   coord_flip()+
   labs(title = "Variable importance for classification trees model", 
        x = "characteristics", y = "variable importance")
@@ -395,7 +398,7 @@ varImp(fit_ct_tuned) %>%
 varImp(fit_ct_tuned)%>%
   mutate(char = rownames(.))%>%
   ggplot(aes(x = reorder(char,Overall),y = Overall))+
-  geom_bar(stat = "identity")+
+  geom_bar(stat = "identity", fill="lightblue")+
   coord_flip()+
   labs(title = "Variable importance for classification trees - tuned model", 
        x = "characteristics", y = "variable importance")

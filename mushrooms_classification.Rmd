@@ -1,9 +1,43 @@
-# Choose Your Own Project - Mushroom classification
+---
+title: "HarvardX; Data Science Capstone"
+subtitle: 
+  - "Choose Your Own Project"
+  - "Mushroom Classification"
+author: "Tali Behar"
+date: "December 2020"
+output:
+  pdf_document:
+    number_sections: true
+---
 
-## Data Preperation
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, fig.align="center", out.width = '65%',
+                      message=FALSE, warning=FALSE)
+```
+# Executive Summary
 
-## 1. Installing required packeges
+## Overview
 
+## Background
+
+## Goal
+
+## Variable Selection
+
+## Method 
+
+## Model Estimation
+
+## Model Results 
+
+## Conclusion
+ 
+ 
+# Data Preperation
+
+## Installing Required Packeges
+
+```{r required packeges, eval=FALSE, include=FALSE}
 if(!require(readr)) install.packages("readr", repos = "http://cran.us.r-project.org")
 if(!require(tidyverse)) install.packages("tidyverse", repos = "http://cran.us.r-project.org")
 if(!require(caret)) install.packages("caret", repos = "http://cran.us.r-project.org")
@@ -14,65 +48,80 @@ if(!require(rpart)) install.packages("rpart", repos = "http://cran.us.r-project.
 if(!require(rpart.plot)) install.packages("rpart.plot", repos = "http://cran.us.r-project.org")
 if(!require(ggplot2)) install.packages("ggplot2", repos = "http://cran.us.r-project.org")
 if(!require(randomForest)) install.packages("randomForest", repos = "http://cran.us.r-project.org")
+```
 
-library(readr) # for reading csv file 
+```{r install required packeges, echo=TRUE}
+library(readr)
 library(tidyverse)
 library(caret)
 library(gridExtra)
 library(knitr)
-library(plot.matrix) # for matrix plotting 
-library(rpart) # for fitting decision trees
-library(rpart.plot) # for decision trees plotting
+library(plot.matrix)
+library(rpart)
+library(rpart.plot)
 library(ggplot2)
-library(randomForest) # for random forest
+library(randomForest)
+```
 
-## 2. Loading Mushroom classification Dataset
-
+## Loading Mushroom Classification Dataset
+```{r}
 # Importing the data - read csv file 
 # TODO: change to local file
 mushrooms <- read.csv("D:/OneDrive/Documents/Tali/Tali data science studies/MushroomClassification/mushrooms.csv")
+```
 
-## 3. Get A Glimpse Of Mushroom classification Dataset
+## Get A Glimpse Of Mushroom Classification Dataset
 
-# The datadet contains 8k rows and 23 columns
+The datadet contains 8k rows and 23 columns
+```{r dim table, echo=FALSE}
 tibble("class"=class(mushrooms), "nrow"=nrow(mushrooms), "ncol"=ncol(mushrooms)) %>%
   knitr::kable()
+```
 
-# The first row represent the class of the mushroom, while rows 2-23 represents
-# he mushrooms chcharacteristics. Moving forward, we'll learn about the mushrooms chcharacteristics
-# and their influence on the mashroom's claclassification
+The first row represent the class of the mushroom, while rows 2-23 represents the mushrooms chcharacteristics. Moving forward, we'll learn about the mushrooms chcharacteristics and their influence on the mashroom's claclassification
+```{r glimpse of the data, echo=FALSE}
 glimpse(mushrooms)
+```
 
-# The next table summarize  the variables class and levels
+The next table summarize  the variables class and levels
+```{r class and levels summarize , echo=FALSE}
 cbind.data.frame("mushrooms characteristics"= names(mushrooms),
                  "class"= sapply(mushrooms,(function(x){class(x)})), 
                  "levels"= sapply(mushrooms,function(x){nlevels(x)})) %>% 
   mutate(char = rownames(.)) %>% 
   select(-char)%>%
   knitr::kable()
-# <TODO> look for NA's 
+```
+ <TODO> look for NA's 
 
-# veil.type has only 1 level, which means not contributing info as a feature; we'll remove it
+veil.type has only 1 level, which means not contributing info as a feature; we'll remove it
+```{r remove veil type col, include=FALSE}
 mushrooms$veil.type<-NULL
+```
 
-# Mushrooms type - we'll distinguish between edible to poisonous 
+Mushrooms type - we'll distinguish between edible to poisonous 
+```{r mushroom type, echo=FALSE}
 mushrooms %>% 
   group_by(class) %>% 
   summarize (count=n())%>%
   mutate(prop=100*count/sum(count)) %>%
   setNames(c("Mushroom type","Count", "Proportion (%)"))
+```
 
-# Summary of the first 5 columns of the variables and their count
+Summary of the first 5 columns of the variables and their count
+```{r dataset summary, echo=FALSE}
 mushrooms[,1:5] %>%
   summary()
+```
 
-#----------------------------------
-## 4. Create training and test sets
+## Create training and test sets
 
+```{r create train and test}
 set.seed(1, sample.kind="Rounding") # if using R 3.5 or earlier, use `set.seed(1)`
 
 # Test set will be 20% of mushrooms data
-test_index <- createDataPartition(y = mushrooms$class, times = 1, p = 0.2, list = FALSE)
+test_index <- createDataPartition(y = mushrooms$class, 
+                                  times = 1, p = 0.2, list = FALSE)
 
 train_set <- mushrooms %>% slice(-test_index)
 test_set <- mushrooms %>% slice(test_index)
@@ -88,12 +137,14 @@ y_test <- test_set$class
 # Remove the outcome from training and test set
 test_set <- test_set %>% select(-class)
 train_set <- train_set %>% select(-class)
-#---------------------------------------------
-## 5. Mushroom classification Dataset Overview 
-# (by train_set)
+```
 
-# cap characteristics
-# figure 1 # 
+# Mushroom classification Dataset Overview 
+
+(by train_set)
+
+## cap characteristics
+```{r figure 1 cap characteristics, echo=FALSE, out.width = '70%'}
 cap_char <- 
   lapply(names(train_set[,1:4]),function(x){
     train_set %>%
@@ -104,9 +155,10 @@ cap_char <-
 # plot all 4 cap figures in 2 columns and 2 rows 
 grid.arrange(cap_char[[1]],cap_char[[2]],cap_char[[3]],cap_char[[4]],
              ncol=2, nrow=2)
+```
 
-# gill characteristics
-# figure 2 # 
+## gill characteristics
+```{r figure 2 gill characteristics, echo=FALSE, out.width = '70%'}
 gill_char <- 
   lapply(names(train_set[,6:9]),function(x){
     train_set %>%
@@ -117,9 +169,10 @@ gill_char <-
 # plot all 4 gill figures in 2 columns and 2 rows 
 grid.arrange(gill_char[[1]],gill_char[[2]],gill_char[[3]],gill_char[[4]],
              ncol=2, nrow=2)
+```
 
-# stalk characteristics
-# figure 3 #
+## stalk characteristics
+```{r figure 3 stalk characteristics, echo=FALSE, out.width = '70%'}
 stalk_char <- 
   lapply(names(train_set[,10:15]),function(x){
     train_set %>%
@@ -131,9 +184,10 @@ stalk_char <-
 grid.arrange(stalk_char[[1]],stalk_char[[2]],stalk_char[[3]],
              stalk_char[[4]],stalk_char[[5]],
              ncol=2, nrow=3)
+```
 
-# veil characteristics
-# figure 4 #
+## veil characteristics
+```{r figure 4 veil ring characteristics, echo=FALSE, out.width = '70%'}
 veil_ring_char <- 
   lapply(names(train_set[,16:18]),function(x){
     train_set %>%
@@ -144,9 +198,10 @@ veil_ring_char <-
 # plot all 3 veil figures in 2 columns and 2 rows 
 grid.arrange(veil_ring_char[[1]],veil_ring_char[[2]],
              veil_ring_char[[3]], ncol=2, nrow=2)
+```
 
-# miscellaneous
-# figure 5 #
+## miscellaneous
+```{r figure 5 other characteristics, echo=FALSE, out.width = '70%'}
 other <- 
   lapply(names(train_set[,c(5,19:21)]),function(x){
     train_set %>%
@@ -156,58 +211,64 @@ other <-
   })
 # plot 4 assorted figures in 2 columns and 2 rows 
 grid.arrange(other[[1]],other[[2]],other[[3]],other[[4]], ncol=2, nrow=2)
+```
 
-#----------------------------------------------
-## 6. Relationships and correlation in the data 
+## Relationships and correlation in the data 
 
-# Check the relationships between the characteristics by performing chi^2 test
+  * Check the relationships between the characteristics by performing chi^2 test
+
+```{r car p.value matrix, include=FALSE}
 index <- expand.grid(1:21,1:21) 
 chi2_test_for_char <- 
   sapply(1:nrow(index), function(i){
   n <- index[i,1]
   m <- index[i,2]
   chisq.test(train_set[,n],train_set[,m],
-             simulate.p.value = TRUE, B = 1000)$p.value # B= number of monte-carlo simulations 
+             simulate.p.value = TRUE, B = 1000)$p.value
 }) %>% 
   matrix(nrow=21, byrow = FALSE)
+```
 
-# The characteristics correlated with each other in case p.value < 0.05
-# plot the p.value matrix 
-# figure 6 #
+The characteristics correlated with each other in case p.value < 0.05
+```{r figure 6 car p.value matrix, echo=FALSE, out.width = '80%'}
 plot(chi2_test_for_char, 
-     col=c("white", "lightblue"), # "white" - p.value < 0.05 (the char are correlated)
+     col=c("white", "lightblue"),
      breaks=c(0, 0.05, 1),
      key=list(side=3, cex.axis=0.6))
+```
 
-# Check the relationships between the characteristics to class by performing chi^2 test
+  * Check the relationships between the characteristics to class by performing chi^2 test
+```{r car calss p.value matrix, include=FALSE} 
 chi2_test_for_class <- 
   sapply(1:21, function(i){
   chisq.test(train_set[,i],y,
   simulate.p.value = TRUE, B = 1000)$p.value # B= number of monte-carlo simulations 
 }) %>% 
   matrix(ncol=21, byrow = FALSE)
+```
 
-# The characteristics correlated with the mushroom class in case p.value < 0.05
-# plot the p.value matrix 
-# figure 7 #  
+The characteristics correlated with the mushroom class in case p.value < 0.05
+```{r figure 7 car class p.value matrix, echo=FALSE, out.width = '60%'}
 plot(chi2_test_for_class, 
-     col=c("white", "lightblue"), # "white" - p.value < 0.05 (the char are correlated)
+     col=c("white", "lightblue"), 
      breaks=c(0, 0.05, 1),
      key=list(side=3, cex.axis=0.6))
+```
 
-#-------------------------
-## 7. Methods and analysis
+# Methods and analysis
 
-# Model 1 - Random Forest
+## Model 1 - Random Forest
 
-# Train rf model and find best parameters
-
+  * Train rf model and find best parameters
+```{r train rf model}
 set.seed(3, sample.kind="Rounding") # if using R 3.5 or earlier, use `set.seed(3)`
+
 train_control <- trainControl(method="cv", number = 10, p = 0.8) # use 10-folds cross-validation 
 tune_grid <- data.frame(mtry =  c(1:5)) # find the best value for tuning mtry
-# Train using "caret"
 
+# Train using "caret"
 set.seed(13, sample.kind="Rounding") # if using R 3.5 or earlier, use 'set.seed(13)'
+
 train_rf <- train(train_set, y,
                   method = "rf",
                   ntree = 200, 
@@ -215,35 +276,44 @@ train_rf <- train(train_set, y,
                   tuneGrid = tune_grid)
 # Find best mtry parameter
 train_rf$bestTune
+```
 
-# Plot the mtry selection by its accuracy
-# figure 8#
+```{r figure 8 Plot the mtry selection by its accuracy, echo=FALSE}
 plot(train_rf)
-
-# Fit the model with best parameter 
-# Fit using "randomForest"
+```
+  * Fit the model with best parameter 
+```{r fit rf model}
 fit_rf <- randomForest(train_set, y,
                        ntree = 200, 
                        nodesize = train_rf$bestTune$mtry)
-# Plot ntree 
-# figure 9#
+``` 
+
+```{r figure 9 Plot ntree, echo=FALSE}
 plot(fit_rf)
-
-# Predict the outcome  
+```
+  * Predict the outcome 
+```{r predict rf}  
 y_hat_rf <- predict(fit_rf, test_set, type = "class")
-
-# Report accuracy 
+```
+  * Report accuracy 
+```{r report rf accuracy}
 cm_rf <- confusionMatrix(y_hat_rf, y_test)
 cm_rf
-model_1_accuracy <- cm_rf$overall["Accuracy"]
+```
 
-# variable importhance list - rf
+```{r model_1_accuracy, include=FALSE}
+model_1_accuracy <- cm_rf$overall["Accuracy"]
+```
+
+  * variable importhance list - rf
+```{r var imp rf, echo=FALSE}
 varImp(fit_rf) %>%
   mutate(char = rownames(.)) %>% 
   arrange(desc(varImp(fit_rf)$"Overall"))
+```
 
-# Graph variable importhance - rf
-# figure 10#
+TODO: explain the graph by mean decrease gini
+```{r figure 10 plot variable importhance - rf, echo=FALSE}
 varImp(fit_rf)%>%
   mutate(char = rownames(.))%>%
   ggplot(aes(x = reorder(char,Overall),y = Overall))+
@@ -251,19 +321,21 @@ varImp(fit_rf)%>%
   coord_flip()+
   labs(title = "Variable importance for random forest model", 
        x = "characteristics", y = "variable importance")
+```
 
-#------------------------------------------
-# Model 2 - Classification (decision) trees
+## Model 2 - Classification (decision) trees
 
+```{r eval=FALSE, include=FALSE}
 # (https://www.edureka.co/blog/implementation-of-decision-tree/) 
 # http://www.milbo.org/rpart-plot/prp.pdf # rpart plots examples
 # https://csantill.github.io/RTuningModelParameters/
 # add explenation on cp from 31.10.3 (p.589)
-
-# Train ct model and find best parameters
-
+```
+  * Train ct model and find best parameters
+```{r train ct model}
 train_control <- trainControl(method="cv", number = 10, p = 0.8) # use 10-folds cross-validation 
 tune_grid <- data.frame(cp = seq(0.0, 0.2, len=30)) # find the best value for cp
+
 # Train using "caret"
 train_ct <- train(train_set, y, 
                   method = "rpart", 
@@ -272,41 +344,50 @@ train_ct <- train(train_set, y,
                   tuneGrid = tune_grid)
 # Find best cp value
 train_ct$bestTune
+```
 
-# Plot the cp selection by itr accuracy
-# figure 11#
+```{r figure 11 Plot the cp selection by its accuracy, echo=FALSE}
 plot(train_ct)
+```
+  * Fit the model with best parameter 
+```{r fit ct model}  
+fit_ct <- 
+  rpart(y ~ ., 
+        data = train_set, 
+        method = "class", 
+        control = rpart.control(cp = train_ct$bestTune$cp , minsplit = 20))
+```
 
-# Fit the model with best parameter 
-# Fit using "rpart"
-fit_ct <- rpart(y ~ ., 
-                data = train_set, 
-                method = "class", 
-                control = rpart.control(cp = train_ct$bestTune$cp , minsplit = 20))
-# Plot size of the tree (nodes) by cp
-# figure 12#
+```{r figure 12 Plot size of the tree (nodes) by cp, echo=FALSE}
 plotcp(fit_ct)
-
-# Plot the tree 
-# figure 13#
+```
+  * The tree 
+```{r figure 13 Plot the tree, echo=FALSE}
 rpart.plot(x = fit_ct, type =5, extra = 4, 
            box.palette = c("lightblue","orangered"), 
            fallen.leaves=TRUE, tweak = 2)
-# Predict the outcome
+```
+  * Predict the outcome
+```{r predict ct }
 y_hat_ct <- predict(fit_ct, test_set, type = "class")
-
-# Report accuracy 
+```
+  * Report accuracy 
+```{r report ct accuracy}
 cm_ct <- confusionMatrix(y_hat_ct, y_test)
 cm_ct
-model_2_accuracy <- cm_ct$overall["Accuracy"]
+```
 
-# variable importhance list - ct
+```{r model_2_accuracy, include=FALSE}
+model_2_accuracy <- cm_ct$overall["Accuracy"]
+```
+  * variable importhance list - ct
+```{r variable importhance list ct, echo=FALSE}
 varImp(fit_ct) %>%
   mutate(char = rownames(.)) %>% 
   arrange(desc(varImp(fit_ct)$"Overall"))
+```
 
-# Graph variable importhance - ct
-# figure 14#
+```{r figure 14 Graph variable importhance ct, echo=FALSE}
 varImp(fit_ct)%>%
   mutate(char = rownames(.))%>%
   ggplot(aes(x = reorder(char,Overall),y = Overall))+
@@ -314,19 +395,22 @@ varImp(fit_ct)%>%
   coord_flip()+
   labs(title = "Variable importance for classification trees model", 
        x = "characteristics", y = "variable importance")
+```
 
-#----------------------------
-# Model 2.1 - Classification (decision) trees - tuned by rf var importance
+## Model 2.1 - Classification (decision) trees - tuned by rf var importance
 
-# create new dataset, eliminate the less important char by rf
+### create new dataset, eliminate the less important char by rf
+```{r new_mashrooms dataset}
 new_mashrooms <- 
   mushrooms %>% 
   select(-gill.attachment,-veil.color,
          -cap.shape,-cap.surface,-stalk.shape,
          -ring.number,-stalk.color.below.ring,
          -stalk.color.above.ring,-gill.spacing)
+```
 
-# split the new data into training and test sets 
+### split the new data into training and test sets 
+```{r split the new data }
 set.seed(1, sample.kind="Rounding") # if using R 3.5 or earlier, use `set.seed(1)`
 
 # Test_new will be 20% of new_mashrooms data
@@ -346,10 +430,12 @@ y_test_new <- test_new$class
 # Remove the outcome from training and test_new
 test_new <- test_new %>% select(-class)
 train_new <- train_new %>% select(-class)
+```
 
-# Train tuned ct model and find best parameters
+### Train tuned ct model and find best parameters
 
-# Train using "caret"
+  * Train using "caret"
+```{r Train tuned ct using caret }
 train_control <- trainControl(method="cv", number = 10, p = 0.8)
 tune_grid <- data.frame(cp = seq(0.0, 0.2, len=30))
 train_ct_tuned <- train(train_new, y_new, 
@@ -359,38 +445,46 @@ train_ct_tuned <- train(train_new, y_new,
                   tuneGrid = tune_grid)
 # Find best cp value
 train_ct_tuned$bestTune
+```
+  * Fit the model with best parameter 
+```{r Fit tuned ct using rpart}
+fit_ct_tuned <- 
+  rpart(y_new ~ ., 
+        data = train_new, 
+        method = "class", 
+        control = rpart.control(cp = train_ct_tuned$bestTune$cp , minsplit = 20))
+```
 
-# Fit the model with best parameter 
-# Fit using "rpart"
-fit_ct_tuned <- rpart(y_new ~ ., 
-                data = train_new, 
-                method = "class", 
-                control = rpart.control(cp = train_ct_tuned$bestTune$cp , minsplit = 20))
-
-# Plot size of the tree (nodes) by cp
-# figure 15#
+```{r figure 15 Plot size of the tree (nodes) by cp, echo=FALSE}
 plotcp(fit_ct_tuned)
-
-# Plot the tree 
-# figure 16#
-rpart.plot(x = fit_ct_tuned, type =5, extra = 100, 
+```
+  * The tuned tree 
+```{r figure 16 plot tuned tree, echo=FALSE}
+rpart.plot(x = fit_ct_tuned, type =5, extra = 4, 
            box.palette = c("lightblue","orangered"), 
            fallen.leaves=TRUE, tweak = 2)
-# Predict the outcome
+```
+  * Predict the outcome
+```{r predict tuned ct}
 y_hat_ct_tuned <- predict(fit_ct_tuned, test_new, type = "class")
-
-# Report accuracy 
+```
+  * Report accuracy 
+```{r report tuned ct accuracy }
 cm_ct_tuned <- confusionMatrix(y_hat_ct_tuned, y_test_new)
 cm_ct_tuned
-model_2.1_accuracy <- cm_ct_tuned$overall["Accuracy"]
+```
 
-# variable importhance list - ct tuned
+```{r tuned ct accuracy, include=FALSE}
+model_2.1_accuracy <- cm_ct_tuned$overall["Accuracy"]
+``` 
+  * variable importhance list - ct tuned
+```{r variable importhance list ct tuned, echo=FALSE}
 varImp(fit_ct_tuned) %>%
   mutate(char = rownames(.)) %>% 
   arrange(desc(varImp(fit_ct_tuned)$"Overall"))
+```
 
-# Graph variable importhance - ct tuned
-# figure 17#
+```{r figure 17 variable importhance tuned ct tuned, echo=FALSE}
 varImp(fit_ct_tuned)%>%
   mutate(char = rownames(.))%>%
   ggplot(aes(x = reorder(char,Overall),y = Overall))+
@@ -398,15 +492,17 @@ varImp(fit_ct_tuned)%>%
   coord_flip()+
   labs(title = "Variable importance for classification trees - tuned model", 
        x = "characteristics", y = "variable importance")
-
-# no change
-# remove the next objects
+```
+no change
+```{r remove the next objects, include=FALSE}
 rm(test_new, train_new, y_new, y_test_new)
+```
+## Model 3 - k-nearest neighbors 
 
-#---------------------------
-# Model 3 - k-nearest neighbors 
+### creating a new data frame 
 
-# creating a new data frame with just the first column of mushroom class (poison vs. edible)
+creating a new data frame with just the first column of mushroom class (poison vs. edible)
+```{r dataset for knn, include=FALSE}
 mushrooms_break_down <- mushrooms[1:1]
 
 # removing it from the original data frame as we don't want to iterate over it by mistake
@@ -427,11 +523,13 @@ for (i in colnames(mushrooms)) {
     mushrooms_break_down[next_column_name] <- next_column
   }
 }
+```
 
+```{r dataset for knn overview, echo=FALSE}
 head(mushrooms_break_down[,1:7],10)
-
-# split the new data into training and test sets 
-
+```
+  * split the new data into training and test sets 
+```{r split knn dataset, include=FALSE}
 set.seed(1, sample.kind="Rounding") # if using R 3.5 or earlier, use `set.seed(1)`
 
 test_index <- createDataPartition(y = mushrooms_break_down$class, times = 1, p = 0.2, list = FALSE)
@@ -450,8 +548,11 @@ y_test <- test_set$class
 # remove the outcome from training and test set
 test_set <- test_set %>% select(-class)
 train_set <- train_set %>% select(-class)
+```
 
-# Train knn model and find best parameters 
+### Train knn model and find best parameters 
+
+```{r train knn }
 set.seed(201, sample.kind="Rounding") # if using R 3.5 or earlier, use `set.seed(201)`
 train_control <- trainControl(method="cv", number = 5, p = 0.8)
 tune_grid <- data.frame(k = seq(1, 15, by=1))
@@ -464,37 +565,55 @@ train_knn <- train(train_set, y,
                    tuneGrid = tune_grid)
 # find optimal k
 train_knn$bestTune
+```
 
-# plot the selection of k by its accuracy
-# figure 18 # 
+```{r figure 18 plot the selection of k by its accuracy, echo=FALSE}
 plot(train_knn)
-
-# fit the model with best parameter using "caret"
+```
+  * fit the model with best parameter using "caret"
+```{r fit knn}
 fit_knn <- knn3(train_set, y, 
                 k = train_knn$bestTune$k)
-
-# predict the outcome
+```
+  * predict the outcome
+```{r predict knn}
 y_hat_knn <- predict(fit_knn, test_set, type = "class")
-
-# Report accuracy 
+```
+  * Report accuracy 
+```{r report knn accuracy }
 cm_knn <- confusionMatrix(y_hat_knn, y_test)
 cm_knn
-model_3_accuracy <- cm_knn$overall["Accuracy"]
+```
 
-# increase the k to avoid overfitting 
+```{r model 3 accuracy ,include=FALSE}
+model_3_accuracy <- cm_knn$overall["Accuracy"]
+```
+### Model 3.1 - Increase the k to avoid overfitting 
+
+  * fit Knn model with k=6
+```{r fit Knn model with k6 }
 set.seed(74, sample.kind="Rounding") # if using R 3.5 or earlier, use `set.seed(74)`
 cm_knn_bigger_k <- knn3(train_set, y, k = 6)
-
-# predict the outcome
+```
+  * predict the outcome
+```{r predict knn bigger k }
 cm_knn_bigger_k <- predict(cm_knn_bigger_k, test_set, type = "class")
-
-# Report accuracy 
+```
+  * Report accuracy 
+```{r report knn begger k accuracy}
 cm_knn_bigger_k <- confusionMatrix(cm_knn_bigger_k, y_test)
 cm_knn_bigger_k
-model_3.1_accuracy <- cm_knn_bigger_k$overall["Accuracy"]
+```
 
-#---------------------------
-# summary of decision and rf 
+```{r model 3_1 accuracy ,include=FALSE}
+model_3.1_accuracy <- cm_knn_bigger_k$overall["Accuracy"]
+```
+
+# Models results 
+
+## summary of decision and rf 
+
+```{r var imp comparison, echo=FALSE}
 cbind.data.frame("rf"= varImp(fit_rf) %>%
                    mutate(char = rownames(.)) %>% 
                    arrange(desc(varImp(fit_rf)$"Overall")) %>%
@@ -508,12 +627,18 @@ cbind.data.frame("rf"= varImp(fit_rf) %>%
                    arrange(desc(varImp(fit_ct_tuned)$"Overall")) %>%
                    slice(1:10)) %>%
   knitr::kable()
+```
 
-# summary of the models accuracy
+## summary of the models accuracy
+
+```{r models accuracy, echo=FALSE}
 rbind("Random Forest" = model_1_accuracy,
       "Classification Trees"= model_2_accuracy,
       "Classification Trees - tuned" = model_2.1_accuracy, 
       "Knn" = model_3_accuracy, 
       "Knn - bigger k" = model_3.1_accuracy) %>% 
 knitr::kable()
+```
+
+# conclusion 
 

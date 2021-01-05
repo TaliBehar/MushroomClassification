@@ -48,7 +48,7 @@ Which features are most indicative of a poisonous mushroom?
     
 ## Method 
   
-  * The ML algorithms that was chosen to model the mushroom classification data set comes from the family of **Classification Algorithms** and are : Classification trees, Random forest and K-nearest neighbors    
+The ML algorithms that was chosen to model the mushroom classification data set comes from the family of **Classification Algorithms** and are: Random forest, Classification trees, and K-nearest neighbors    
 
  * Divide the mushrooms dataset randomly to train set and test set 
  
@@ -146,7 +146,7 @@ The next table specify the class of the outcome and featurs (factor), and the le
   
 'veil.type' has only 1 level which means not contributing info as a feature. We'll remove it from the data and won't use it as a feature. 
 
-   <TODO> look for NA's 
+   <TODO> look for NA's , write about "?"
 ```{r class and levels summarize , echo=FALSE}
 cbind.data.frame("mushrooms characteristics"= names(mushrooms),
                  "class"= sapply(mushrooms,(function(x){class(x)})), 
@@ -235,11 +235,13 @@ grid.arrange(cap_char[[1]],cap_char[[2]],cap_char[[3]],cap_char[[4]],
 
     - Cap color: brown=n, buff=b, cinnamon=c, gray=g, green=r, pink=p, purple=u, red=e, white=w, yellow=y
 
+
   * Bruises
 
     - Mushroom bruising involves nicking the top and bottom of the mushroom cap and observing any colour changes
 
     - Bruises: bruises=t, no=f
+    
     
   * We can see that there is no significant difference in the cap characteristics or bruises that indicate class. Yet, sunken shape, purple color and green color will always indicate edible mushroom.
   
@@ -266,7 +268,8 @@ grid.arrange(gill_char[[1]],gill_char[[2]],gill_char[[3]],gill_char[[4]],
 
     - Gill color: black=k, brown=n, buff=b, chocolate=h, gray=g,
     green=r, orange=o, pink=p, purple=u, red=e, white=w, yellow=y
-
+ 
+ 
   * We can see differences in the gill characteristics that may indicate the mushrooms class. Buff and Green gill colors will always indicate poisonous.   
 
 ### stalk characteristics
@@ -296,7 +299,8 @@ grid.arrange(stalk_char[[1]],stalk_char[[2]],stalk_char[[3]],
     - Stalk color above ring: brown=n, buff=b, cinnamon=c, gray=g, orange=o, pink=p, red=e, white=w, yellow=y
 
     - Stalk color below ring: brown=n, buff=b, cinnamon=c, gray=g, orange=o, pink=p, red=e, white=w, yellow=y
-    
+
+
   * Buff, cinnamon and yellow stalk color above ring will always indicate poisonous mushroom. All other stalk characteristics distributing in different frequancy between the mushrooms class.  
 
 ### veil and Ring characteristics
@@ -318,6 +322,7 @@ grid.arrange(veil_ring_char[[1]],veil_ring_char[[2]],
 
     - Veil color: brown=n, orange=o, white=w, yellow=y
     
+    
   * Ring
   
     - Membrane located under the cap and circling the stem; remnant of a membrane that covered the gills of the immature mushroom and ruptured as the cap grew.
@@ -325,6 +330,7 @@ grid.arrange(veil_ring_char[[1]],veil_ring_char[[2]],
     - Ring number: none=n, one=o, two=t
 
     - Ring type: cobwebby=c, evanescent=e, flaring=f, large=l, none=n, pendant=p, sheathing=s, zone=z
+
 
   * Brown and orange veil color will always indicate edible mushroom
   
@@ -348,6 +354,7 @@ grid.arrange(other[[1]],other[[2]],other[[3]],other[[4]], ncol=2, nrow=2)
     
     - There are significant differens in the odor distribution. Poisonus and edible mushrooms smelles very diffrently and we can consider the odor as a dominant feature. 
     
+    
   * Spore print color 
   
     - The spore print is the powdery deposit obtained by allowing spores of a fungal fruit body to fall onto a surface underneath
@@ -356,11 +363,13 @@ grid.arrange(other[[1]],other[[2]],other[[3]],other[[4]], ncol=2, nrow=2)
     
     - Green print color will always indicate poison. 
     
+    
   * Population - the way they spread in their habitat 
   
     - abundant=a, clustered=c, numerous=n, scattered=s, several=v, solitary=y
     
     - Poisonus mushrooms can never be found abundant or in numerous numbers
+  
   
   * Habitat
   
@@ -386,11 +395,12 @@ It compares two variables in a contingency table to see if they are related. In 
 
 It is a nonparametric test.
 
-A chi square test will produce a p-value. The p-value will tell us if the test results are significant or not.
+A chi square test will produce a p-value which will tell us if the test results are significant or not.
 
 Under the null hypothesis $H_{0}$ - the categorical variables are independent
 
 If $p.value <= {\alpha}$: significant result, reject $H_{0}$, dependent.
+
 If $p.value > {\alpha}$: not significant result, fail to reject $H_{0}$, independent.
 
 We'll set $p.value = 0.5$ 
@@ -437,73 +447,13 @@ plot(chi2_test_for_class,
 
 # Methods and analysis
 
-## Model 1 - Random Forest
+A classification algorithm is a function that weighs the input features so that the output separates one class into positive values and the other into negative values. Classifier training is performed to identify the weights that provide the most accurate and best separation of the two classes of data. <TODO> write in other words
 
-  * Train rf model and find best parameters
-```{r train rf model}
-set.seed(3, sample.kind="Rounding") # if using R 3.5 or earlier, use `set.seed(3)`
+Among the common classification algorithms are clssification/desicion trees, Random forest, and Knn. The later works slight differntly than the two first.  
 
-train_control <- trainControl(method="cv", number = 10, p = 0.8) # use 10-folds cross-validation 
-tune_grid <- data.frame(mtry =  c(1:5)) # find the best value for tuning mtry
+Since the correlation matrix showed that the featurs are dependent, we will start with all the 21 featurs. 
 
-# Train using "caret"
-set.seed(13, sample.kind="Rounding") # if using R 3.5 or earlier, use 'set.seed(13)'
-
-train_rf <- train(train_set, y,
-                  method = "rf",
-                  ntree = 200, 
-                  trControl = train_control,
-                  tuneGrid = tune_grid)
-# Find best mtry parameter
-train_rf$bestTune
-```
-
-```{r figure 8 Plot the mtry selection by its accuracy, echo=FALSE}
-plot(train_rf)
-```
-  * Fit the model with best parameter 
-```{r fit rf model}
-fit_rf <- randomForest(train_set, y,
-                       ntree = 200, 
-                       nodesize = train_rf$bestTune$mtry)
-``` 
-
-```{r figure 9 Plot ntree, echo=FALSE}
-plot(fit_rf)
-```
-  * Predict the outcome 
-```{r predict rf}  
-y_hat_rf <- predict(fit_rf, test_set, type = "class")
-```
-  * Report accuracy 
-```{r report rf accuracy}
-cm_rf <- confusionMatrix(y_hat_rf, y_test)
-cm_rf
-```
-
-```{r model_1_accuracy, include=FALSE}
-model_1_accuracy <- cm_rf$overall["Accuracy"]
-```
-
-  * variable importhance list - rf
-```{r var imp rf, echo=FALSE}
-varImp(fit_rf) %>%
-  mutate(char = rownames(.)) %>% 
-  arrange(desc(varImp(fit_rf)$"Overall"))
-```
-
-TODO: explain the graph by mean decrease gini
-```{r figure 10 plot variable importhance - rf, echo=FALSE}
-varImp(fit_rf)%>%
-  mutate(char = rownames(.))%>%
-  ggplot(aes(x = reorder(char,Overall),y = Overall))+
-  geom_bar(stat = "identity", fill = "lightblue")+
-  coord_flip()+
-  labs(title = "Variable importance for random forest model", 
-       x = "characteristics", y = "variable importance")
-```
-
-## Model 2 - Classification (decision) trees
+## Model 1 - Classification (decision) trees
 
 ```{r eval=FALSE, include=FALSE}
 # (https://www.edureka.co/blog/implementation-of-decision-tree/) 
@@ -526,7 +476,7 @@ train_ct <- train(train_set, y,
 train_ct$bestTune
 ```
 
-```{r figure 11 Plot the cp selection by its accuracy, echo=FALSE}
+```{r figure 8 Plot the cp selection by its accuracy, echo=FALSE}
 plot(train_ct)
 ```
   * Fit the model with best parameter 
@@ -538,11 +488,11 @@ fit_ct <-
         control = rpart.control(cp = train_ct$bestTune$cp , minsplit = 20))
 ```
 
-```{r figure 12 Plot size of the tree (nodes) by cp, echo=FALSE}
+```{r figure 9 Plot size of the tree (nodes) by cp, echo=FALSE}
 plotcp(fit_ct)
 ```
   * The tree 
-```{r figure 13 Plot the tree, echo=FALSE}
+```{r figure 10 Plot the tree, echo=FALSE}
 rpart.plot(x = fit_ct, type =5, extra = 4, 
            box.palette = c("lightblue","orangered"), 
            fallen.leaves=TRUE, tweak = 2)
@@ -557,8 +507,8 @@ cm_ct <- confusionMatrix(y_hat_ct, y_test)
 cm_ct
 ```
 
-```{r model_2_accuracy, include=FALSE}
-model_2_accuracy <- cm_ct$overall["Accuracy"]
+```{r model_1_accuracy, include=FALSE}
+model_1_accuracy <- cm_ct$overall["Accuracy"]
 ```
   * variable importhance list - ct
 ```{r variable importhance list ct, echo=FALSE}
@@ -567,7 +517,7 @@ varImp(fit_ct) %>%
   arrange(desc(varImp(fit_ct)$"Overall"))
 ```
 
-```{r figure 14 Graph variable importhance ct, echo=FALSE}
+```{r figure 11 Graph variable importhance ct, echo=FALSE}
 varImp(fit_ct)%>%
   mutate(char = rownames(.))%>%
   ggplot(aes(x = reorder(char,Overall),y = Overall))+
@@ -577,7 +527,7 @@ varImp(fit_ct)%>%
        x = "characteristics", y = "variable importance")
 ```
 
-## Model 2.1 - Classification (decision) trees - tuned by rf var importance
+## Model 1.1 - Classification (decision) trees - tuned by rf var importance
 
 ### create new dataset, eliminate the less important char by rf
 ```{r new_mashrooms dataset}
@@ -635,11 +585,11 @@ fit_ct_tuned <-
         control = rpart.control(cp = train_ct_tuned$bestTune$cp , minsplit = 20))
 ```
 
-```{r figure 15 Plot size of the tree (nodes) by cp, echo=FALSE}
+```{r figure 12 Plot size of the tree (nodes) by cp, echo=FALSE}
 plotcp(fit_ct_tuned)
 ```
   * The tuned tree 
-```{r figure 16 plot tuned tree, echo=FALSE}
+```{r figure 13 plot tuned tree, echo=FALSE}
 rpart.plot(x = fit_ct_tuned, type =5, extra = 4, 
            box.palette = c("lightblue","orangered"), 
            fallen.leaves=TRUE, tweak = 2)
@@ -655,7 +605,7 @@ cm_ct_tuned
 ```
 
 ```{r tuned ct accuracy, include=FALSE}
-model_2.1_accuracy <- cm_ct_tuned$overall["Accuracy"]
+model_1.1_accuracy <- cm_ct_tuned$overall["Accuracy"]
 ``` 
   * variable importhance list - ct tuned
 ```{r variable importhance list ct tuned, echo=FALSE}
@@ -664,7 +614,7 @@ varImp(fit_ct_tuned) %>%
   arrange(desc(varImp(fit_ct_tuned)$"Overall"))
 ```
 
-```{r figure 17 variable importhance tuned ct tuned, echo=FALSE}
+```{r figure 14 variable importhance tuned ct tuned, echo=FALSE}
 varImp(fit_ct_tuned)%>%
   mutate(char = rownames(.))%>%
   ggplot(aes(x = reorder(char,Overall),y = Overall))+
@@ -677,6 +627,74 @@ no change
 ```{r remove the next objects, include=FALSE}
 rm(test_new, train_new, y_new, y_test_new)
 ```
+
+## Model 2 - Random Forest
+
+  * Train rf model and find best parameters
+```{r train rf model}
+set.seed(3, sample.kind="Rounding") # if using R 3.5 or earlier, use `set.seed(3)`
+
+train_control <- trainControl(method="cv", number = 10, p = 0.8) # use 10-folds cross-validation 
+tune_grid <- data.frame(mtry =  c(1:5)) # find the best value for tuning mtry
+
+# Train using "caret"
+set.seed(13, sample.kind="Rounding") # if using R 3.5 or earlier, use 'set.seed(13)'
+
+train_rf <- train(train_set, y,
+                  method = "rf",
+                  ntree = 200, 
+                  trControl = train_control,
+                  tuneGrid = tune_grid)
+# Find best mtry parameter
+train_rf$bestTune
+```
+
+```{r figure 15 Plot the mtry selection by its accuracy, echo=FALSE}
+plot(train_rf)
+```
+  * Fit the model with best parameter 
+```{r fit rf model}
+fit_rf <- randomForest(train_set, y,
+                       ntree = 200, 
+                       nodesize = train_rf$bestTune$mtry)
+``` 
+
+```{r figure 16 Plot ntree, echo=FALSE}
+plot(fit_rf)
+```
+  * Predict the outcome 
+```{r predict rf}  
+y_hat_rf <- predict(fit_rf, test_set, type = "class")
+```
+  * Report accuracy 
+```{r report rf accuracy}
+cm_rf <- confusionMatrix(y_hat_rf, y_test)
+cm_rf
+```
+
+```{r model_2_accuracy, include=FALSE}
+model_2_accuracy <- cm_rf$overall["Accuracy"]
+```
+
+  * variable importhance list - rf
+```{r var imp rf, echo=FALSE}
+varImp(fit_rf) %>%
+  mutate(char = rownames(.)) %>% 
+  arrange(desc(varImp(fit_rf)$"Overall"))
+```
+
+TODO: explain the graph by mean decrease gini
+```{r figure 17 plot variable importhance - rf, echo=FALSE}
+varImp(fit_rf)%>%
+  mutate(char = rownames(.))%>%
+  ggplot(aes(x = reorder(char,Overall),y = Overall))+
+  geom_bar(stat = "identity", fill = "lightblue")+
+  coord_flip()+
+  labs(title = "Variable importance for random forest model", 
+       x = "characteristics", y = "variable importance")
+```
+
+
 ## Model 3 - k-nearest neighbors 
 
 ### creating a new data frame 
@@ -812,9 +830,9 @@ cbind.data.frame("rf"= varImp(fit_rf) %>%
 ## summary of the models accuracy
 
 ```{r models accuracy, echo=FALSE}
-rbind("Random Forest" = model_1_accuracy,
-      "Classification Trees"= model_2_accuracy,
-      "Classification Trees - tuned" = model_2.1_accuracy, 
+rbind("Classification Trees"= model_1_accuracy,
+      "Classification Trees - tuned" = model_1.1_accuracy,
+      "Random Forest" = model_2_accuracy,
       "Knn" = model_3_accuracy, 
       "Knn - bigger k" = model_3.1_accuracy) %>% 
 knitr::kable()

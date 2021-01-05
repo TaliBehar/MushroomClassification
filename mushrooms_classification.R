@@ -199,62 +199,7 @@ plot(chi2_test_for_class,
 #-------------------------
 ## 7. Methods and analysis
 
-# Model 1 - Random Forest
-
-# Train rf model and find best parameters
-
-set.seed(3, sample.kind="Rounding") # if using R 3.5 or earlier, use `set.seed(3)`
-train_control <- trainControl(method="cv", number = 10, p = 0.8) # use 10-folds cross-validation 
-tune_grid <- data.frame(mtry =  c(1:5)) # find the best value for tuning mtry
-# Train using "caret"
-
-set.seed(13, sample.kind="Rounding") # if using R 3.5 or earlier, use 'set.seed(13)'
-train_rf <- train(train_set, y,
-                  method = "rf",
-                  ntree = 200, 
-                  trControl = train_control,
-                  tuneGrid = tune_grid)
-# Find best mtry parameter
-train_rf$bestTune
-
-# Plot the mtry selection by its accuracy
-# figure 8#
-plot(train_rf)
-
-# Fit the model with best parameter 
-# Fit using "randomForest"
-fit_rf <- randomForest(train_set, y,
-                       ntree = 200, 
-                       nodesize = train_rf$bestTune$mtry)
-# Plot ntree 
-# figure 9#
-plot(fit_rf)
-
-# Predict the outcome  
-y_hat_rf <- predict(fit_rf, test_set, type = "class")
-
-# Report accuracy 
-cm_rf <- confusionMatrix(y_hat_rf, y_test)
-cm_rf
-model_1_accuracy <- cm_rf$overall["Accuracy"]
-
-# variable importhance list - rf
-varImp(fit_rf) %>%
-  mutate(char = rownames(.)) %>% 
-  arrange(desc(varImp(fit_rf)$"Overall"))
-
-# Graph variable importhance - rf
-# figure 10#
-varImp(fit_rf)%>%
-  mutate(char = rownames(.))%>%
-  ggplot(aes(x = reorder(char,Overall),y = Overall))+
-  geom_bar(stat = "identity", fill = "lightblue")+
-  coord_flip()+
-  labs(title = "Variable importance for random forest model", 
-       x = "characteristics", y = "variable importance")
-
-#------------------------------------------
-# Model 2 - Classification (decision) trees
+# Model 1 - Classification (decision) trees
 
 # (https://www.edureka.co/blog/implementation-of-decision-tree/) 
 # http://www.milbo.org/rpart-plot/prp.pdf # rpart plots examples
@@ -275,7 +220,7 @@ train_ct <- train(train_set, y,
 train_ct$bestTune
 
 # Plot the cp selection by itr accuracy
-# figure 11#
+# figure 8#
 plot(train_ct)
 
 # Fit the model with best parameter 
@@ -285,11 +230,11 @@ fit_ct <- rpart(y ~ .,
                 method = "class", 
                 control = rpart.control(cp = train_ct$bestTune$cp , minsplit = 20))
 # Plot size of the tree (nodes) by cp
-# figure 12#
+# figure 9#
 plotcp(fit_ct)
 
 # Plot the tree 
-# figure 13#
+# figure 10#
 rpart.plot(x = fit_ct, type =5, extra = 4, 
            box.palette = c("lightblue","orangered"), 
            fallen.leaves=TRUE, tweak = 2)
@@ -299,7 +244,7 @@ y_hat_ct <- predict(fit_ct, test_set, type = "class")
 # Report accuracy 
 cm_ct <- confusionMatrix(y_hat_ct, y_test)
 cm_ct
-model_2_accuracy <- cm_ct$overall["Accuracy"]
+model_1_accuracy <- cm_ct$overall["Accuracy"]
 
 # variable importhance list - ct
 varImp(fit_ct) %>%
@@ -307,7 +252,7 @@ varImp(fit_ct) %>%
   arrange(desc(varImp(fit_ct)$"Overall"))
 
 # Graph variable importhance - ct
-# figure 14#
+# figure 11#
 varImp(fit_ct)%>%
   mutate(char = rownames(.))%>%
   ggplot(aes(x = reorder(char,Overall),y = Overall))+
@@ -317,7 +262,7 @@ varImp(fit_ct)%>%
        x = "characteristics", y = "variable importance")
 
 #----------------------------
-# Model 2.1 - Classification (decision) trees - tuned by rf var importance
+# Model 1.1 - Classification (decision) trees - tuned by rf var importance
 
 # create new dataset, eliminate the less important char by rf
 new_mashrooms <- 
@@ -369,11 +314,11 @@ fit_ct_tuned <- rpart(y_new ~ .,
                 control = rpart.control(cp = train_ct_tuned$bestTune$cp , minsplit = 20))
 
 # Plot size of the tree (nodes) by cp
-# figure 15#
+# figure 12#
 plotcp(fit_ct_tuned)
 
 # Plot the tree 
-# figure 16#
+# figure 13#
 rpart.plot(x = fit_ct_tuned, type =5, extra = 100, 
            box.palette = c("lightblue","orangered"), 
            fallen.leaves=TRUE, tweak = 2)
@@ -383,7 +328,7 @@ y_hat_ct_tuned <- predict(fit_ct_tuned, test_new, type = "class")
 # Report accuracy 
 cm_ct_tuned <- confusionMatrix(y_hat_ct_tuned, y_test_new)
 cm_ct_tuned
-model_2.1_accuracy <- cm_ct_tuned$overall["Accuracy"]
+model_1.1_accuracy <- cm_ct_tuned$overall["Accuracy"]
 
 # variable importhance list - ct tuned
 varImp(fit_ct_tuned) %>%
@@ -391,7 +336,7 @@ varImp(fit_ct_tuned) %>%
   arrange(desc(varImp(fit_ct_tuned)$"Overall"))
 
 # Graph variable importhance - ct tuned
-# figure 17#
+# figure 14#
 varImp(fit_ct_tuned)%>%
   mutate(char = rownames(.))%>%
   ggplot(aes(x = reorder(char,Overall),y = Overall))+
@@ -405,6 +350,61 @@ varImp(fit_ct_tuned)%>%
 rm(test_new, train_new, y_new, y_test_new)
 
 #---------------------------
+# Model 2 - Random Forest
+
+# Train rf model and find best parameters
+
+set.seed(3, sample.kind="Rounding") # if using R 3.5 or earlier, use `set.seed(3)`
+train_control <- trainControl(method="cv", number = 10, p = 0.8) # use 10-folds cross-validation 
+tune_grid <- data.frame(mtry =  c(1:5)) # find the best value for tuning mtry
+# Train using "caret"
+
+set.seed(13, sample.kind="Rounding") # if using R 3.5 or earlier, use 'set.seed(13)'
+train_rf <- train(train_set, y,
+                  method = "rf",
+                  ntree = 200, 
+                  trControl = train_control,
+                  tuneGrid = tune_grid)
+# Find best mtry parameter
+train_rf$bestTune
+
+# Plot the mtry selection by its accuracy
+# figure 15#
+plot(train_rf)
+
+# Fit the model with best parameter 
+# Fit using "randomForest"
+fit_rf <- randomForest(train_set, y,
+                       ntree = 200, 
+                       nodesize = train_rf$bestTune$mtry)
+# Plot ntree 
+# figure 16#
+plot(fit_rf)
+
+# Predict the outcome  
+y_hat_rf <- predict(fit_rf, test_set, type = "class")
+
+# Report accuracy 
+cm_rf <- confusionMatrix(y_hat_rf, y_test)
+cm_rf
+model_2_accuracy <- cm_rf$overall["Accuracy"]
+
+# variable importhance list - rf
+varImp(fit_rf) %>%
+  mutate(char = rownames(.)) %>% 
+  arrange(desc(varImp(fit_rf)$"Overall"))
+
+# Graph variable importhance - rf
+# figure 17#
+varImp(fit_rf)%>%
+  mutate(char = rownames(.))%>%
+  ggplot(aes(x = reorder(char,Overall),y = Overall))+
+  geom_bar(stat = "identity", fill = "lightblue")+
+  coord_flip()+
+  labs(title = "Variable importance for random forest model", 
+       x = "characteristics", y = "variable importance")
+
+#----------------------------------------------------
 # Model 3 - k-nearest neighbors 
 
 # creating a new data frame with just the first column of mushroom class (poison vs. edible)
@@ -511,9 +511,9 @@ cbind.data.frame("rf"= varImp(fit_rf) %>%
   knitr::kable()
 
 # summary of the models accuracy
-rbind("Random Forest" = model_1_accuracy,
-      "Classification Trees"= model_2_accuracy,
-      "Classification Trees - tuned" = model_2.1_accuracy, 
+rbind("Classification Trees"= model_1_accuracy,
+      "Classification Trees - tuned" = model_1.1_accuracy,
+      "Random Forest" = model_2_accuracy,
       "Knn" = model_3_accuracy, 
       "Knn - bigger k" = model_3.1_accuracy) %>% 
 knitr::kable()

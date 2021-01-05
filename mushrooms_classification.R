@@ -456,19 +456,6 @@ fit_rf <- randomForest(train_set, y,
 # figure 16#
 plot(fit_rf)
 
-# Predict the outcome  
-y_hat_rf <- predict(fit_rf, test_set, type = "class")
-
-# Report accuracy 
-cm_rf <- confusionMatrix(y_hat_rf, y_test)
-cm_rf
-model_2_accuracy <- cm_rf$overall["Accuracy"]
-
-# variable importhance list - rf
-varImp(fit_rf) %>%
-  mutate(char = rownames(.)) %>% 
-  arrange(desc(varImp(fit_rf)$"Overall"))
-
 # Graph variable importhance - rf
 # figure 17#
 varImp(fit_rf)%>%
@@ -479,10 +466,24 @@ varImp(fit_rf)%>%
   labs(title = "Variable importance for random forest model", 
        x = "characteristics", y = "variable importance")
 
+# Predict the outcome  
+y_hat_rf <- predict(fit_rf, test_set, type = "class")
+
+# Report accuracy 
+cm_rf <- confusionMatrix(y_hat_rf, y_test)
+cm_rf$table 
+model_2_accuracy <- cm_rf$overall["Accuracy"]
+rbind(c(model_2_accuracy, 
+        cm_rf$byClass[c("Sensitivity","Specificity","Prevalence","Balanced Accuracy")])) %>%
+  knitr::kable()
+
 #----------------------------------------------------
 # Model 3 - k-nearest neighbors 
 
 # creating a new data frame with just the first column of mushroom class (poison vs. edible)
+
+
+
 mushrooms_break_down <- mushrooms[1:1]
 
 # removing it from the original data frame as we don't want to iterate over it by mistake
@@ -556,18 +557,6 @@ y_hat_knn <- predict(fit_knn, test_set, type = "class")
 cm_knn <- confusionMatrix(y_hat_knn, y_test)
 cm_knn
 model_3_accuracy <- cm_knn$overall["Accuracy"]
-
-# increase the k to avoid overfitting 
-set.seed(74, sample.kind="Rounding") # if using R 3.5 or earlier, use `set.seed(74)`
-cm_knn_bigger_k <- knn3(train_set, y, k = 6)
-
-# predict the outcome
-cm_knn_bigger_k <- predict(cm_knn_bigger_k, test_set, type = "class")
-
-# Report accuracy 
-cm_knn_bigger_k <- confusionMatrix(cm_knn_bigger_k, y_test)
-cm_knn_bigger_k
-model_3.1_accuracy <- cm_knn_bigger_k$overall["Accuracy"]
 
 #---------------------------
 # summary of decision and rf 

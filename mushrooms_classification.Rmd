@@ -11,7 +11,7 @@ output:
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, fig.align="center", out.width = '65%',
+knitr::opts_chunk$set(echo = TRUE, fig.align="center", out.width = '55%',
                       message=FALSE, warning=FALSE)
 ```
 # Executive Summary
@@ -522,9 +522,9 @@ rpart.plot(x = fit_ct, type =5, extra = 100,
 
 The importance of the variable calculated by "Gini Importance " or "mean decrease gini" 
 
-"Gini importance" calculates each feature importance as the sum over the number of splits (across all tress) that include the feature, proportionally to the number of samples it splits.
+"Gini importance" calculates each feature importance as the sum over the number of splits that include the feature, proportionally to the number of samples it splits.
 
-We can interperate it as how valuable this variable to the split.
+We can interperate it as how valuable or neaded this variable to the split.
 We can see that 8 out of the 21 featurs did not contribute any information to the splits , but "Stalk" char. had valuable influence overall.  
 ```{r figure 11 Graph variable importhance ct, echo=FALSE}
 varImp(fit_ct)%>%
@@ -563,7 +563,7 @@ The previos model took into considaration the entire variables and we saw that 2
 
 Let's look into a case which we are asking to clasify a mushroom by a picture. What are the best featurs for the classification would be? 
 
-### create new dataset, eliminate the general char. 
+  * create new dataset, eliminate the general char. 
 ```{r new_mashrooms dataset}
 visual_mashrooms <- 
   mushrooms %>% 
@@ -597,9 +597,9 @@ test_visual <- test_visual %>% select(-class)
 train_visual <- train_visual %>% select(-class)
 ```
 
-### Train tuned ct model and find best parameters
+  * Train tuned ct model and find best parameters
 
-  * We'll repeat the previons steps and train the model to find the best complexity parameter with 10-fold cross-validation to avoid overfitting. 
+We'll repeat the previons steps and train the model to find the best complexity parameter with 10-fold cross-validation to avoid overfitting. 
 ```{r Train tuned ct using caret }
 train_control <- trainControl(method="cv", number = 10, p = 0.8)
 tune_grid <- data.frame(cp = seq(0.0, 0.2, len=30))
@@ -623,13 +623,13 @@ This tree prouned with 16 more branches than the originat tree.
 ```{r figure 12 Plot size of the tree (nodes) by cp, echo=FALSE}
 plotcp(fit_ct_visual)
 ```
-  * The vusual tree 
+  * The 'visual' tree 
 ```{r figure 13 plot tuned tree, echo=FALSE}
 rpart.plot(x = fit_ct_visual, type =5, extra = 100, 
            box.palette = c("lightblue","orangered"), 
            fallen.leaves=TRUE, tweak = 1)
 ```
- * variable importhance 
+ * Variable importhance 
 
 Stalk still have large influence on the splitting, while ring type has the highst mean decrease gini (used to be zero in the original tree), means that gill type (the first var. to split) and the ring type is highly correlated
 ```{r figure 14 variable importhance tuned ct tuned, echo=FALSE}
@@ -654,6 +654,8 @@ rbind(c(model_1.1_accuracy,
          cm_ct_visual$byClass[c("Sensitivity","Specificity","Prevalence","Balanced Accuracy")])) %>%
   knitr::kable()
 ```
+  * Model results
+  
 The visual model achived worse result than the original - 99.6% accuracy.  
 
 There is 5 false- positive results (5 edible predicted poisonus) and one false-negative result (poisonus predicted as edible). 
@@ -666,7 +668,7 @@ rm(visual_mashrooms, test_visual, train_visual, y_visual, y_test_visual)
 
 # Model 1.2 - Classification (decision) trees - tuned
 
-# create new dataset, eliminate the general char, return spore.print.color
+  * create new dataset, eliminate the general char, return spore.print.color
 ```{r tuned_mashrooms}
 tuned_mashrooms <- 
   mushrooms %>% 
@@ -695,8 +697,7 @@ y_test_tuned <- test_tuned$class
 test_tuned <- test_tuned %>% select(-class)
 train_tuned <- train_tuned %>% select(-class)
 ```
-
-# Train tuned ct model and find best parameters
+  * Train tuned ct model and find best parameters
 ```{r train and fit tuned, include=FALSE}
 # Train using "caret"
 train_control <- trainControl(method="cv", number = 10, p = 0.8)
@@ -716,14 +717,14 @@ fit_ct_tuned <- rpart(y_tuned ~ .,
                        method = "class", 
                        control = rpart.control(cp = train_ct_tuned$bestTune$cp , minsplit = 20))
 ```
-# Plot the tree 
+  * Plot the tree 
 ```{r tuned tree plot, echo=FALSE}
 # figure #
 rpart.plot(x = fit_ct_tuned, type =5, extra = 100, 
            box.palette = c("lightblue","orangered"), 
            fallen.leaves=TRUE, tweak = 1)
 ```
-# Graph variable importhance 
+  * Graph variable importhance 
 ```{r tuned variable importhance, echo=FALSE}
 # figure 
 varImp(fit_ct_tuned)%>%
@@ -734,7 +735,7 @@ varImp(fit_ct_tuned)%>%
   labs(title = "Variable importance for classification trees - tuned model", 
        x = "characteristics", y = "variable importance")
 ```
-  * predict and report accuracy
+  * Predict and report accuracy
 ```{r Predict Report accuracy tuned, echo=FALSE}
 # Predict the outcome
 y_hat_ct_tuned <- predict(fit_ct_tuned, test_tuned, type = "class")
@@ -747,47 +748,45 @@ rbind(c(model_1.2_accuracy,
         cm_ct_tuned$byClass[c("Sensitivity","Specificity","Prevalence","Balanced Accuracy")])) %>%
   knitr::kable()
 ```
+  * Model results
+  
+The model achived a perfect accuracy of 100%. 
+It can be assumed that 'Odor' that was a dominant feature in the original model was "stand in the way" toward a perfect prediction. Smell can be very confusing sometimes. 
+
+In addition, the model suggest that 'gill attachment', 'veil color', and 'veil type' does not contributing information to the model and therfore are not needed, alongside with 'odor', 'population' and 'habitat' 
 
 ```{r remove objects, include=FALSE}
 # remove the next objects
 rm(test_tuned, train_tuned, y_tuned, y_test_tuned)
 ```
 
-
-
-
-
-
-
-
-
-
-
 <to do> add the model limitation from the book 
-
-
 
 ## Model 2 - Random Forest
 
+The Random forests combines multiple decision trees. Its goal is to improve prediction performance
+and reduce instability by averaging multiple decision trees.
+
   * Train rf model and find best parameters
+
+Same here, we will use 10-fold cross validation and set a tune_grid for mtry (number of variables randomly sampled as candidates at each split). We can see in the next plot that the accuracy is higher when mtry reach to 4 randomly sampled variables.  
 ```{r train rf model}
 set.seed(3, sample.kind="Rounding") # if using R 3.5 or earlier, use `set.seed(3)`
 
 train_control <- trainControl(method="cv", number = 10, p = 0.8) # use 10-folds cross-validation 
 tune_grid <- data.frame(mtry =  c(1:5)) # find the best value for tuning mtry
 
-# Train using "caret"
 set.seed(13, sample.kind="Rounding") # if using R 3.5 or earlier, use 'set.seed(13)'
 
 train_rf <- train(train_set, y,
                   method = "rf",
-                  ntree = 200, 
+                  ntree = 200,  #number of trees to grow
                   trControl = train_control,
                   tuneGrid = tune_grid)
 # Find best mtry parameter
 train_rf$bestTune
 ```
-
+mtry - number of variables randomly sampled as candidates at each split
 ```{r figure 15 Plot the mtry selection by its accuracy, echo=FALSE}
 plot(train_rf)
 ```
@@ -797,32 +796,13 @@ fit_rf <- randomForest(train_set, y,
                        ntree = 200, 
                        nodesize = train_rf$bestTune$mtry)
 ``` 
-
+The accuracy improve as we add more trees until about 20 trees where accuracy stabilize
 ```{r figure 16 Plot ntree, echo=FALSE}
 plot(fit_rf)
 ```
-  * Predict the outcome 
-```{r predict rf}  
-y_hat_rf <- predict(fit_rf, test_set, type = "class")
-```
-  * Report accuracy 
-```{r report rf accuracy}
-cm_rf <- confusionMatrix(y_hat_rf, y_test)
-cm_rf
-```
+The Random Forest first important variable is 'Odor'. In addition, all general char. are participaing in the classification and have a predictive power. 
 
-```{r model_2_accuracy, include=FALSE}
-model_2_accuracy <- cm_rf$overall["Accuracy"]
-```
-
-  * variable importhance list - rf
-```{r var imp rf, echo=FALSE}
-varImp(fit_rf) %>%
-  mutate(char = rownames(.)) %>% 
-  arrange(desc(varImp(fit_rf)$"Overall"))
-```
-
-TODO: explain the graph by mean decrease gini
+Down the list, the less important featurs 'gill attachment' and 'veil color'. Those 2 featurs also wasn't needed in the tuned ct model that got 100% accuracy. Means, we can eliminate them. 
 ```{r figure 17 plot variable importhance - rf, echo=FALSE}
 varImp(fit_rf)%>%
   mutate(char = rownames(.))%>%
@@ -832,6 +812,28 @@ varImp(fit_rf)%>%
   labs(title = "Variable importance for random forest model", 
        x = "characteristics", y = "variable importance")
 ```
+  * Predict the outcome 
+```{r predict rf}  
+y_hat_rf <- predict(fit_rf, test_set, type = "class")
+```
+  * Report accuracy 
+```{r report rf accuracy, echo=FALSE}
+cm_rf <- confusionMatrix(y_hat_rf, y_test)
+cm_rf$table 
+model_2_accuracy <- cm_rf$overall["Accuracy"]
+rbind(c(model_2_accuracy, 
+       cm_rf$byClass[c("Sensitivity","Specificity","Prevalence","Balanced Accuracy")])) %>%
+  knitr::kable()
+```
+  * Model results
+
+Random forest achived 100% accuracy.
+
+Random forest chooses features randomly during the training process. Therefore, it does not depend highly on any specific set of features. It is more difficult to interpret than a single desicion tree, but the randomized feature selection makes random forest much more accurate than a decision tree.
+
+This is why rf could handel 'Odor' better than the simple first model of decision tree. 
+
+In addition, both rf and ct did not need 'gill attachment' and 'veil color' as a predictors for a perfect accuracy.
 
 
 ## Model 3 - k-nearest neighbors 
@@ -924,26 +926,6 @@ cm_knn
 
 ```{r model 3 accuracy ,include=FALSE}
 model_3_accuracy <- cm_knn$overall["Accuracy"]
-```
-### Model 3.1 - Increase the k to avoid overfitting 
-
-  * fit Knn model with k=6
-```{r fit Knn model with k6 }
-set.seed(74, sample.kind="Rounding") # if using R 3.5 or earlier, use `set.seed(74)`
-cm_knn_bigger_k <- knn3(train_set, y, k = 6)
-```
-  * predict the outcome
-```{r predict knn bigger k }
-cm_knn_bigger_k <- predict(cm_knn_bigger_k, test_set, type = "class")
-```
-  * Report accuracy 
-```{r report knn begger k accuracy}
-cm_knn_bigger_k <- confusionMatrix(cm_knn_bigger_k, y_test)
-cm_knn_bigger_k
-```
-
-```{r model 3_1 accuracy ,include=FALSE}
-model_3.1_accuracy <- cm_knn_bigger_k$overall["Accuracy"]
 ```
 
 # Models results 

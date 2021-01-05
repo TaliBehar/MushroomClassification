@@ -235,21 +235,9 @@ plotcp(fit_ct)
 
 # Plot the tree 
 # figure 10#
-rpart.plot(x = fit_ct, type =5, extra = 4, 
+rpart.plot(x = fit_ct, type =5, extra = 100, 
            box.palette = c("lightblue","orangered"), 
-           fallen.leaves=TRUE, tweak = 2)
-# Predict the outcome
-y_hat_ct <- predict(fit_ct, test_set, type = "class")
-
-# Report accuracy 
-cm_ct <- confusionMatrix(y_hat_ct, y_test)
-cm_ct
-model_1_accuracy <- cm_ct$overall["Accuracy"]
-
-# variable importhance list - ct
-varImp(fit_ct) %>%
-  mutate(char = rownames(.)) %>% 
-  arrange(desc(varImp(fit_ct)$"Overall"))
+           fallen.leaves=TRUE, tweak = 1)
 
 # Graph variable importhance - ct
 # figure 11#
@@ -261,81 +249,158 @@ varImp(fit_ct)%>%
   labs(title = "Variable importance for classification trees model", 
        x = "characteristics", y = "variable importance")
 
-#----------------------------
-# Model 1.1 - Classification (decision) trees - tuned by rf var importance
+# Predict the outcome
+y_hat_ct <- predict(fit_ct, test_set, type = "class")
 
-# create new dataset, eliminate the less important char by rf
-new_mashrooms <- 
+# Report accuracy 
+cm_ct <- confusionMatrix(y_hat_ct, y_test)
+cm_ct$table 
+model_1_accuracy <- cm_ct$overall["Accuracy"]
+rbind(c(model_1_accuracy, 
+         cm_ct$byClass[c("Sensitivity","Specificity","Prevalence","Balanced Accuracy")])) %>%
+  knitr::kable()
+
+#----------------------------
+# Model 1.1 - Classification (decision) trees - only "Visual Characteristics" 
+
+# create new dataset, eliminate the general char
+visual_mashrooms <- 
   mushrooms %>% 
-  select(-gill.attachment,-veil.color,
-         -cap.shape,-cap.surface,-stalk.shape,
-         -ring.number,-stalk.color.below.ring,
-         -stalk.color.above.ring,-gill.spacing)
+  select(-odor, -habitat, -population, -spore.print.color)
 
 # split the new data into training and test sets 
 set.seed(1, sample.kind="Rounding") # if using R 3.5 or earlier, use `set.seed(1)`
 
 # Test_new will be 20% of new_mashrooms data
-new_test_index <- createDataPartition(y = new_mashrooms$class, times = 1, p = 0.2, list = FALSE)
+visual_test_index <- createDataPartition(y = visual_mashrooms$class, times = 1, p = 0.2, list = FALSE)
 
-train_new <- new_mashrooms %>% slice(-new_test_index)
-test_new <- new_mashrooms %>% slice(new_test_index)
+train_visual <- visual_mashrooms %>% slice(-visual_test_index)
+test_visual <- visual_mashrooms %>% slice(visual_test_index)
 # Remove test_index
-rm(new_test_index)
+rm(visual_test_index)
 
 # Define the outcome (class of the mushrooms) = y_new  
-y_new <- train_new$class
+y_visual <- train_visual$class
 
 # Restore the true y from test_new
-y_test_new <- test_new$class
+y_test_visual <- test_visual$class
 
 # Remove the outcome from training and test_new
-test_new <- test_new %>% select(-class)
-train_new <- train_new %>% select(-class)
+test_visual <- test_visual %>% select(-class)
+train_visual <- train_visual %>% select(-class)
 
 # Train tuned ct model and find best parameters
 
 # Train using "caret"
 train_control <- trainControl(method="cv", number = 10, p = 0.8)
 tune_grid <- data.frame(cp = seq(0.0, 0.2, len=30))
-train_ct_tuned <- train(train_new, y_new, 
+train_ct_visual <- train(train_visual, y_visual, 
                   method = "rpart", 
                   tuneLength = 6,
                   trControl = train_control,
                   tuneGrid = tune_grid)
 # Find best cp value
+train_ct_visual$bestTune
+
+# Fit the model with best parameter 
+# Fit using "rpart"
+fit_ct_visual <- rpart(y_visual ~ ., 
+                data = train_visual, 
+                method = "class", 
+                control = rpart.control(cp = train_ct_visual$bestTune$cp , minsplit = 20))
+
+# Plot size of the tree (nodes) by cp
+# figure 12#
+plotcp(fit_ct_visual)
+
+# Plot the tree 
+# figure 13#
+rpart.plot(x = fit_ct_visual, type =5, extra = 100, 
+           box.palette = c("lightblue","orangered"), 
+           fallen.leaves=TRUE, tweak = 1)
+
+# Graph variable importhance - ct visual
+# figure 14#
+varImp(fit_ct_visual)%>%
+  mutate(char = rownames(.))%>%
+  ggplot(aes(x = reorder(char,Overall),y = Overall))+
+  geom_bar(stat = "identity", fill="lightblue")+
+  coord_flip()+
+  labs(title = "Variable importance for classification trees - tuned model", 
+       x = "characteristics", y = "variable importance")
+
+# Predict the outcome
+y_hat_ct_visual <- predict(fit_ct_visual, test_visual, type = "class")
+
+# Report accuracy 
+cm_ct_visual <- confusionMatrix(y_hat_ct_visual, y_test_visual)
+cm_ct_visual$table 
+model_1.1_accuracy <- cm_ct_visual$overall["Accuracy"]
+rbind(c(model_1.1_accuracy, 
+        cm_ct_visual$byClass[c("Sensitivity","Specificity","Prevalence","Balanced Accuracy")])) %>%
+  knitr::kable()
+
+# no change
+# remove the next objects
+rm(visual_mashrooms, test_visual, train_visual, y_visual, y_test_visual)
+
+#-----------------------------------------------
+
+# Model 1.2 - Classification (decision) trees - tuned
+
+# create new dataset, eliminate the general char, return spore.print.color
+tuned_mashrooms <- 
+  mushrooms %>% 
+  select(-odor, -habitat, -population)
+
+# split the new data into training and test sets 
+set.seed(1, sample.kind="Rounding") # if using R 3.5 or earlier, use `set.seed(1)`
+
+# Test_tuned will be 20% of new_mashrooms data
+tuned_test_index <- createDataPartition(y = tuned_mashrooms$class, times = 1, p = 0.2, list = FALSE)
+
+train_tuned <- tuned_mashrooms %>% slice(-tuned_test_index)
+test_tuned <- tuned_mashrooms %>% slice(tuned_test_index)
+# Remove test_index
+rm(tuned_test_index)
+
+# Define the outcome (class of the mushrooms) = y_new  
+y_tuned <- train_tuned$class
+
+# Restore the true y from test_new
+y_test_tuned <- test_tuned$class
+
+# Remove the outcome from training and test_new
+test_tuned <- test_tuned %>% select(-class)
+train_tuned <- train_tuned %>% select(-class)
+
+# Train tuned ct model and find best parameters
+
+# Train using "caret"
+train_control <- trainControl(method="cv", number = 10, p = 0.8)
+tune_grid <- data.frame(cp = seq(0.0, 0.2, len=30))
+train_ct_tuned <- train(train_tuned, y_tuned, 
+                         method = "rpart", 
+                         tuneLength = 6,
+                         trControl = train_control,
+                         tuneGrid = tune_grid)
+# Find best cp value
 train_ct_tuned$bestTune
 
 # Fit the model with best parameter 
 # Fit using "rpart"
-fit_ct_tuned <- rpart(y_new ~ ., 
-                data = train_new, 
-                method = "class", 
-                control = rpart.control(cp = train_ct_tuned$bestTune$cp , minsplit = 20))
-
-# Plot size of the tree (nodes) by cp
-# figure 12#
-plotcp(fit_ct_tuned)
+fit_ct_tuned <- rpart(y_tuned ~ ., 
+                       data = train_tuned, 
+                       method = "class", 
+                       control = rpart.control(cp = train_ct_tuned$bestTune$cp , minsplit = 20))
 
 # Plot the tree 
 # figure 13#
 rpart.plot(x = fit_ct_tuned, type =5, extra = 100, 
            box.palette = c("lightblue","orangered"), 
-           fallen.leaves=TRUE, tweak = 2)
-# Predict the outcome
-y_hat_ct_tuned <- predict(fit_ct_tuned, test_new, type = "class")
+           fallen.leaves=TRUE, tweak = 1)
 
-# Report accuracy 
-cm_ct_tuned <- confusionMatrix(y_hat_ct_tuned, y_test_new)
-cm_ct_tuned
-model_1.1_accuracy <- cm_ct_tuned$overall["Accuracy"]
-
-# variable importhance list - ct tuned
-varImp(fit_ct_tuned) %>%
-  mutate(char = rownames(.)) %>% 
-  arrange(desc(varImp(fit_ct_tuned)$"Overall"))
-
-# Graph variable importhance - ct tuned
+# Graph variable importhance - ct visual
 # figure 14#
 varImp(fit_ct_tuned)%>%
   mutate(char = rownames(.))%>%
@@ -345,9 +410,19 @@ varImp(fit_ct_tuned)%>%
   labs(title = "Variable importance for classification trees - tuned model", 
        x = "characteristics", y = "variable importance")
 
-# no change
+# Predict the outcome
+y_hat_ct_tuned <- predict(fit_ct_tuned, test_tuned, type = "class")
+
+# Report accuracy 
+cm_ct_tuned <- confusionMatrix(y_hat_ct_tuned, y_test_tuned)
+cm_ct_tuned$table 
+model_1.2_accuracy <- cm_ct_tuned$overall["Accuracy"]
+rbind(c(model_1.2_accuracy, 
+        cm_ct_tuned$byClass[c("Sensitivity","Specificity","Prevalence","Balanced Accuracy")])) %>%
+  knitr::kable()
+
 # remove the next objects
-rm(test_new, train_new, y_new, y_test_new)
+rm(test_tuned, train_tuned, y_tuned, y_test_tuned)
 
 #---------------------------
 # Model 2 - Random Forest

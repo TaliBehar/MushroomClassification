@@ -455,6 +455,17 @@ Since the correlation matrix showed that the featurs are dependent, we will star
 
 ## Model 1 - Classification (decision) trees
 
+  * Classification / decision trees, are used in prediction problems where the outcome is
+categorical. We form predictions by calculating which class is the most common
+among the training set observations within the partition.
+
+  * The default splitting method for classification called "Gini Index" and is the following: 
+
+$$ Gini(j) = {\displaystyle\sum_{k=1}^K\hat{p}_{j,k}(1-\hat{p}_{j,k})} $$
+When $\hat{p}_{j,k}$= the proportion of observation in partition ${j}$ that are in class ${k}$
+
+The "Gini Index" seek to partition observation into subset that have the same class. For this case, a partition have only one class, so if it's the first one, then $\hat{p}_{1,k}=1 , \hat{p}_{2,k}=0 , \hat{p}_{3,k}=0 .... \hat{p}_{j,k}=0$  
+
 ```{r eval=FALSE, include=FALSE}
 # (https://www.edureka.co/blog/implementation-of-decision-tree/) 
 # http://www.milbo.org/rpart-plot/prp.pdf # rpart plots examples
@@ -475,7 +486,9 @@ train_ct <- train(train_set, y,
 # Find best cp value
 train_ct$bestTune
 ```
+The complexity parameter (cp) is the minimum improvement in the model needed at each node. 
 
+When cp=0 than the tree is fully grown and no need to prune it.  
 ```{r figure 8 Plot the cp selection by its accuracy, echo=FALSE}
 plot(train_ct)
 ```
@@ -491,7 +504,11 @@ fit_ct <-
 ```{r figure 9 Plot size of the tree (nodes) by cp, echo=FALSE}
 plotcp(fit_ct)
 ```
-  * The tree 
+The above graph shows that the cross validation relative error (X-val), reaching the minimal value for a tree of size 6, which correspond to a complexity parameter of 0. 
+
+The final tree is the following. The top node contain the entire sample, each of the remaining nodes contains a subset of the sample in the node directly above it. 
+
+As we predicted before, Odor is a dominant feature and is the first to be splited. 
 ```{r figure 10 Plot the tree, echo=FALSE}
 rpart.plot(x = fit_ct, type =5, extra = 4, 
            box.palette = c("lightblue","orangered"), 
@@ -627,6 +644,8 @@ no change
 ```{r remove the next objects, include=FALSE}
 rm(test_new, train_new, y_new, y_test_new)
 ```
+<to do> add the model limitation from the book 
+
 
 ## Model 2 - Random Forest
 

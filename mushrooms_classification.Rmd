@@ -18,15 +18,53 @@ knitr::opts_chunk$set(echo = TRUE, fig.align="center", out.width = '65%',
 
 ## Overview
 
+we like to walk increased the walking during covid time, we encounter mushrooms when walking in the woods in our area, last fall our yard was full of mushrooms that popped up during the night. 
+different typs in different areas, according to the type of soil, sun exposure, grass. 
+we wonder about their type. 
+<to do> take some quotes from Wiki 
+
 ## Background
+ < from kaggle > 
+this dataset includes descriptions of hypothetical samples corresponding to 23 species of gilled mushrooms in the Agaricus and Lepiota Family Mushroom drawn from The Audubon Society Field Guide to North American Mushrooms (1981). Each species is identified as definitely edible, definitely poisonous, or of unknown edibility and not recommended. This latter class was combined with the poisonous one. The Guide clearly states that there is no simple rule for determining the edibility of a mushroom; no rule like "leaflets three, let it be'' for Poisonous Oak and Ivy.
+
+The data is categorical. 
+Each column contain it's own factors, represented by unique letters (see extension on 
+section... < TODO>)
 
 ## Goal
+ < from kaggle > 
+
+What types of machine learning models perform best on this dataset?
+Which features are most indicative of a poisonous mushroom?
 
 ## Variable Selection
 
+1.	**Y = class**
+    The outcome will be the class of the mushroom: e = edible, p = poisonous 
+
+2.	**The features**
+
+  For classifing mushrooms, wheater it's outside or through pictures it's important to be femiliar with all the details about them. I choose to take all of the 22 mushrooms characteristics to be used for the prediction; odor, population,	habitat, bruises, cap, gill, stalk, veil, ring and spore-print-color.
+    
 ## Method 
+  
+  * The ML algorithms that was chosen to model the mushroom classification data set comes from the family of **Classification Algorithms** and are : Classification trees, Random forest and K-nearest neighbors    
+
+ * Divide the mushrooms dataset randomly to train set and test set 
+ 
+ * Visualize the distribution of the characteristics between e/p class and find thoghtful insights 
+ 
+ * Visualize the relationships and correlation in the data - once between the characteristics and the class, and once among the characteristics themselves. 
+ 
+ * Train and fit the above algorithms using cross-validation and tuning methods
+ 
+ * Constract bulian data set for handling with Knn algorithm  
 
 ## Model Estimation
+
+Evaluate model performance based on its **overall accuracy** 
+
+Overall accuracy is the simplest way to evaluate the algorithm when the outcomes are categorical. This method is simply reporting the proportion of cases that were correctly predicted in the test set.  
 
 ## Model Results 
 
@@ -71,19 +109,44 @@ mushrooms <- read.csv("D:/OneDrive/Documents/Tali/Tali data science studies/Mush
 ```
 
 ## Get A Glimpse Of Mushroom Classification Dataset
-
-The datadet contains 8k rows and 23 columns
 ```{r dim table, echo=FALSE}
 tibble("class"=class(mushrooms), "nrow"=nrow(mushrooms), "ncol"=ncol(mushrooms)) %>%
   knitr::kable()
 ```
 
-The first row represent the class of the mushroom, while rows 2-23 represents the mushrooms chcharacteristics. Moving forward, we'll learn about the mushrooms chcharacteristics and their influence on the mashroom's claclassification
 ```{r glimpse of the data, echo=FALSE}
 glimpse(mushrooms)
 ```
+### The mushrooms datadet contains 8k rows and 23 columns. 
 
-The next table summarize  the variables class and levels
+**columns** 
+
+The first column represent the class of the mushroom "e" for edible and "P" for poisonous.
+
+Columns 2:23 represents the mushrooms chcharacteristics as the following: 
+
+Odor, Population,	Habitat, Bruises, Cap, Gill, Stalk, Veil, Ring and Spore-print-color. 
+
+We can distinguish between visual and general characteristics: 
+
+  * Visual characteristics can be measured from a picture, such as the color and shaps of the mushroom's cap, bruises, gill, stalk, veil and ring. 
+
+  * General characteristics can be evaluated in-person, such as the mushroom's odor, the habitat, population and Spore-print-color. 
+
+**Rows** 
+
+Each row represent one observation on one mushroom and comtain its class and unique characteristics.
+
+
+Moving forward, we'll learn about the mushrooms chcharacteristics and their influence on the mashroom's claclassification.
+
+### The dataset is categoriacl
+  
+The next table specify the class of the outcome and featurs (factor), and the levels of each of the factors. 
+  
+'veil.type' has only 1 level which means not contributing info as a feature. We'll remove it from the data and won't use it as a feature. 
+
+   <TODO> look for NA's 
 ```{r class and levels summarize , echo=FALSE}
 cbind.data.frame("mushrooms characteristics"= names(mushrooms),
                  "class"= sapply(mushrooms,(function(x){class(x)})), 
@@ -92,30 +155,35 @@ cbind.data.frame("mushrooms characteristics"= names(mushrooms),
   select(-char)%>%
   knitr::kable()
 ```
- <TODO> look for NA's 
 
-veil.type has only 1 level, which means not contributing info as a feature; we'll remove it
 ```{r remove veil type col, include=FALSE}
 mushrooms$veil.type<-NULL
 ```
+### The prevalence of the observation
 
-Mushrooms type - we'll distinguish between edible to poisonous 
+The prevalence of the mashrooms class in the dataset is almost about the same .
+  
+52% of the observations belong to edible type and 48% are poisonous, which means we should not expect biased prediction. 
+
+Predicting poisonous mushroom as edible can be a terrible mistake, so in addition to the accuracy of the model, we'll also take a look of the other parts of the 'confusionMatrix', that contains the sensitivity, specificity, prevalence and balanced accuracy.    
 ```{r mushroom type, echo=FALSE}
 mushrooms %>% 
   group_by(class) %>% 
   summarize (count=n())%>%
   mutate(prop=100*count/sum(count)) %>%
-  setNames(c("Mushroom type","Count", "Proportion (%)"))
+  setNames(c("Mushroom class","Count", "Proportion (%)")) %>%
+  knitr::kable()
 ```
 
-Summary of the first 5 columns of the variables and their count
+Here is a quick summary of the variables and their count. 
+
+since the full table is very wide, we'll present only the first 5 columns
 ```{r dataset summary, echo=FALSE}
 mushrooms[,1:5] %>%
   summary()
 ```
 
 ## Create training and test sets
-
 ```{r create train and test}
 set.seed(1, sample.kind="Rounding") # if using R 3.5 or earlier, use `set.seed(1)`
 
@@ -141,10 +209,11 @@ train_set <- train_set %>% select(-class)
 
 # Mushroom classification Dataset Overview 
 
-(by train_set)
+## Visual Characteristics
 
-## cap characteristics
-```{r figure 1 cap characteristics, echo=FALSE, out.width = '70%'}
+### cap and bruises characteristics
+
+```{r figure 1 cap characteristics, echo=FALSE, out.width = '75%'}
 cap_char <- 
   lapply(names(train_set[,1:4]),function(x){
     train_set %>%
@@ -156,9 +225,26 @@ cap_char <-
 grid.arrange(cap_char[[1]],cap_char[[2]],cap_char[[3]],cap_char[[4]],
              ncol=2, nrow=2)
 ```
+  * Cap
+  
+    - Differently shaped and colored upper part of the mushroom that protects the gills. In other words, the cap is the top of the mushroom. 
 
-## gill characteristics
-```{r figure 2 gill characteristics, echo=FALSE, out.width = '70%'}
+    - Cap shape: bell=b, conical=c, convex=x, flat=f, knobbed=k, sunken=s
+
+    - Cap surface: fibrous=f, grooves=g, scaly=y, smooth=s
+
+    - Cap color: brown=n, buff=b, cinnamon=c, gray=g, green=r, pink=p, purple=u, red=e, white=w, yellow=y
+
+  * Bruises
+
+    - Mushroom bruising involves nicking the top and bottom of the mushroom cap and observing any colour changes
+
+    - Bruises: bruises=t, no=f
+    
+  * We can see that there is no significant difference in the cap characteristics or bruises that indicate class. Yet, sunken shape, purple color and green color will always indicate edible mushroom.
+  
+### gill characteristics
+```{r figure 2 gill characteristics, echo=FALSE, out.width = '75%'}
 gill_char <- 
   lapply(names(train_set[,6:9]),function(x){
     train_set %>%
@@ -170,9 +256,21 @@ gill_char <-
 grid.arrange(gill_char[[1]],gill_char[[2]],gill_char[[3]],gill_char[[4]],
              ncol=2, nrow=2)
 ```
+  * Fertile spore-producing part of the mushroom, located under the cap. 
 
-## stalk characteristics
-```{r figure 3 stalk characteristics, echo=FALSE, out.width = '70%'}
+    - Gill attachment: attached=a, descending=d, free=f, notched=n
+
+    - Gill spacing: close=c, crowded=w, distant=d
+
+    - Gill size: broad=b, narrow=n
+
+    - Gill color: black=k, brown=n, buff=b, chocolate=h, gray=g,
+    green=r, orange=o, pink=p, purple=u, red=e, white=w, yellow=y
+
+  * We can see differences in the gill characteristics that may indicate the mushrooms class. Buff and Green gill colors will always indicate poisonous.   
+
+### stalk characteristics
+```{r figure 3 stalk characteristics, echo=FALSE, out.width = '75%'}
 stalk_char <- 
   lapply(names(train_set[,10:15]),function(x){
     train_set %>%
@@ -180,14 +278,29 @@ stalk_char <-
       geom_jitter()+
       theme(legend.position = "none")
 })
-# plot all 5 stalk figures in 2 columns and 3 rows 
+# plot all 6 stalk figures in 2 columns and 3 rows 
 grid.arrange(stalk_char[[1]],stalk_char[[2]],stalk_char[[3]],
-             stalk_char[[4]],stalk_char[[5]],
+             stalk_char[[4]],stalk_char[[5]],stalk_char[[6]],
              ncol=2, nrow=3)
 ```
+  * Stem, Axis supporting the mushroom’s cap. The role of the mushroom stalk is to raise the cap above the grass, twigs or stones that are close to the ground
+  
+    - Stalk shape: enlarging=e, tapering=t
 
-## veil characteristics
-```{r figure 4 veil ring characteristics, echo=FALSE, out.width = '70%'}
+    - Stalk root: bulbous=b, club=c, cup=u, equal=e, rhizomorphs=z, rooted=r, missing=?
+
+    - Stalk surface above ring: fibrous=f, scaly=y, silky=k, smooth=s
+
+    - Stalk surface below ring: fibrous=f, scaly=y, silky=k, smooth=s
+
+    - Stalk color above ring: brown=n, buff=b, cinnamon=c, gray=g, orange=o, pink=p, red=e, white=w, yellow=y
+
+    - Stalk color below ring: brown=n, buff=b, cinnamon=c, gray=g, orange=o, pink=p, red=e, white=w, yellow=y
+    
+  * Buff, cinnamon and yellow stalk color above ring will always indicate poisonous mushroom. All other stalk characteristics distributing in different frequancy between the mushrooms class.  
+
+### veil and Ring characteristics
+```{r figure 4 veil ring characteristics, echo=FALSE, out.width = '75%'}
 veil_ring_char <- 
   lapply(names(train_set[,16:18]),function(x){
     train_set %>%
@@ -199,9 +312,26 @@ veil_ring_char <-
 grid.arrange(veil_ring_char[[1]],veil_ring_char[[2]],
              veil_ring_char[[3]], ncol=2, nrow=2)
 ```
+  * Veil
+  
+    - The thin membrane that covers the cap and stalk of an immature mushroom
 
-## miscellaneous
-```{r figure 5 other characteristics, echo=FALSE, out.width = '70%'}
+    - Veil color: brown=n, orange=o, white=w, yellow=y
+    
+  * Ring
+  
+    - Membrane located under the cap and circling the stem; remnant of a membrane that covered the gills of the immature mushroom and ruptured as the cap grew.
+
+    - Ring number: none=n, one=o, two=t
+
+    - Ring type: cobwebby=c, evanescent=e, flaring=f, large=l, none=n, pendant=p, sheathing=s, zone=z
+
+  * Brown and orange veil color will always indicate edible mushroom
+  
+  * Mushrooms with large ring or no rings will always indicate poison.   
+  
+## General Characteristics
+```{r figure 5 other characteristics, echo=FALSE, out.width = '75%'}
 other <- 
   lapply(names(train_set[,c(5,19:21)]),function(x){
     train_set %>%
@@ -212,11 +342,61 @@ other <-
 # plot 4 assorted figures in 2 columns and 2 rows 
 grid.arrange(other[[1]],other[[2]],other[[3]],other[[4]], ncol=2, nrow=2)
 ```
+  * Odor - The smell of the mushroom
+
+    - almond=a, anise=l, creosote=c, fishy=y, foul=f, musty=m, none=n, pungent=p, spicy=s
+    
+    - There are significant differens in the odor distribution. Poisonus and edible mushrooms smelles very diffrently and we can consider the odor as a dominant feature. 
+    
+  * Spore print color 
+  
+    - The spore print is the powdery deposit obtained by allowing spores of a fungal fruit body to fall onto a surface underneath
+  
+    - black=k, brown=n, buff=b, chocolate=h, green=r, orange=o, purple=u, white=w, yellow=y
+    
+    - Green print color will always indicate poison. 
+    
+  * Population - the way they spread in their habitat 
+  
+    - abundant=a, clustered=c, numerous=n, scattered=s, several=v, solitary=y
+    
+    - Poisonus mushrooms can never be found abundant or in numerous numbers
+  
+  * Habitat
+  
+    - grasses=g, leaves=l, meadows=m, paths=p, urban=u, waste=w, woods=d
+    
+    - Poisonus mushrooms can grow anywhere but can never be found on waste
+
 
 ## Relationships and correlation in the data 
 
-  * Check the relationships between the characteristics by performing chi^2 test
+All the above characteristics are building one mushroom. since that, It can be assumed that all the feathures are correlated with the class of the mushroom and among themselves.
 
+In the above plots we noticed high influence of the odor on the mushroom class. 
+Yet, in order to select the best other featurs that have a strong predictive power, we need to see if they are correlated or not.  
+
+For building efficient predictive models, we would ideally only include variables that uniquely explain some amount of variance in the outcome.
+
+### Chi-Square Test
+
+The **Chi-Square Test** (${\chi}^2$ test) of Independence determines whether there is an association between **categorical variables**.
+
+It compares two variables in a contingency table to see if they are related. In a more general sense, it tests to see whether distributions of categorical variables differ from each another. 
+
+It is a nonparametric test.
+
+A chi square test will produce a p-value. The p-value will tell us if the test results are significant or not.
+
+Under the null hypothesis $H_{0}$ - the categorical variables are independent
+
+If $p.value <= {\alpha}$: significant result, reject $H_{0}$, dependent.
+If $p.value > {\alpha}$: not significant result, fail to reject $H_{0}$, independent.
+
+We'll set $p.value = 0.5$ 
+
+
+### Relationships between the characteristics by ${\chi}^2$ test 
 ```{r car p.value matrix, include=FALSE}
 index <- expand.grid(1:21,1:21) 
 chi2_test_for_char <- 
@@ -228,8 +408,9 @@ chi2_test_for_char <-
 }) %>% 
   matrix(nrow=21, byrow = FALSE)
 ```
+The row and the columns represent the 21 features. The diagonal represent the correlation of the feature with himself (always correlated).  
 
-The characteristics correlated with each other in case p.value < 0.05
+We can see that all the features correlated with each other except 'veil color' and 'ring number' that are indepandent from each other  
 ```{r figure 6 car p.value matrix, echo=FALSE, out.width = '80%'}
 plot(chi2_test_for_char, 
      col=c("white", "lightblue"),
@@ -237,7 +418,7 @@ plot(chi2_test_for_char,
      key=list(side=3, cex.axis=0.6))
 ```
 
-  * Check the relationships between the characteristics to class by performing chi^2 test
+### Relationships between the characteristics to class by ${\chi}^2$ test 
 ```{r car calss p.value matrix, include=FALSE} 
 chi2_test_for_class <- 
   sapply(1:21, function(i){
@@ -246,8 +427,7 @@ chi2_test_for_class <-
 }) %>% 
   matrix(ncol=21, byrow = FALSE)
 ```
-
-The characteristics correlated with the mushroom class in case p.value < 0.05
+All the characteristics are corraleted with the mushroom class 
 ```{r figure 7 car class p.value matrix, echo=FALSE, out.width = '60%'}
 plot(chi2_test_for_class, 
      col=c("white", "lightblue"), 

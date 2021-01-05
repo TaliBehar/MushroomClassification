@@ -60,7 +60,8 @@ mushrooms %>%
   group_by(class) %>% 
   summarize (count=n())%>%
   mutate(prop=100*count/sum(count)) %>%
-  setNames(c("Mushroom type","Count", "Proportion (%)"))
+  setNames(c("Mushroom class","Count", "Proportion (%)"))%>%
+  knitr::kable()
 
 # Summary of the first 5 columns of the variables and their count
 mushrooms[,1:5] %>%
@@ -127,9 +128,9 @@ stalk_char <-
       geom_jitter()+
       theme(legend.position = "none")
 })
-# plot all 5 stalk figures in 2 columns and 3 rows 
+# plot all 6 stalk figures in 2 columns and 3 rows 
 grid.arrange(stalk_char[[1]],stalk_char[[2]],stalk_char[[3]],
-             stalk_char[[4]],stalk_char[[5]],
+             stalk_char[[4]],stalk_char[[5]],stalk_char[[6]],
              ncol=2, nrow=3)
 
 # veil characteristics

@@ -105,7 +105,9 @@ library(randomForest)
 ```{r}
 # Importing the data - read csv file 
 # TODO: change to local file
-mushrooms <- read.csv("D:/OneDrive/Documents/Tali/Tali data science studies/MushroomClassification/mushrooms.csv")
+mushrooms_df <- read.csv("D:/OneDrive/Documents/Tali/Tali data science studies/MushroomClassification/mushrooms.csv")
+
+mushrooms <- mushrooms_df
 ```
 
 ## Get A Glimpse Of Mushroom Classification Dataset
@@ -213,7 +215,7 @@ train_set <- train_set %>% select(-class)
 
 ### cap and bruises characteristics
 
-```{r figure 1 cap characteristics, echo=FALSE, out.width = '75%'}
+```{r figure 1 cap characteristics, echo=FALSE, out.width = '80%'}
 cap_char <- 
   lapply(names(train_set[,1:4]),function(x){
     train_set %>%
@@ -246,7 +248,7 @@ grid.arrange(cap_char[[1]],cap_char[[2]],cap_char[[3]],cap_char[[4]],
   * We can see that there is no significant difference in the cap characteristics or bruises that indicate class. Yet, sunken shape, purple color and green color will always indicate edible mushroom.
   
 ### gill characteristics
-```{r figure 2 gill characteristics, echo=FALSE, out.width = '75%'}
+```{r figure 2 gill characteristics, echo=FALSE, out.width = '80%'}
 gill_char <- 
   lapply(names(train_set[,6:9]),function(x){
     train_set %>%
@@ -273,7 +275,7 @@ grid.arrange(gill_char[[1]],gill_char[[2]],gill_char[[3]],gill_char[[4]],
   * We can see differences in the gill characteristics that may indicate the mushrooms class. Buff and Green gill colors will always indicate poisonous.   
 
 ### stalk characteristics
-```{r figure 3 stalk characteristics, echo=FALSE, out.width = '75%'}
+```{r figure 3 stalk characteristics, echo=FALSE, out.width = '80%'}
 stalk_char <- 
   lapply(names(train_set[,10:15]),function(x){
     train_set %>%
@@ -304,7 +306,7 @@ grid.arrange(stalk_char[[1]],stalk_char[[2]],stalk_char[[3]],
   * Buff, cinnamon and yellow stalk color above ring will always indicate poisonous mushroom. All other stalk characteristics distributing in different frequancy between the mushrooms class.  
 
 ### veil and Ring characteristics
-```{r figure 4 veil ring characteristics, echo=FALSE, out.width = '75%'}
+```{r figure 4 veil ring characteristics, echo=FALSE, out.width = '80%'}
 veil_ring_char <- 
   lapply(names(train_set[,16:18]),function(x){
     train_set %>%
@@ -337,7 +339,7 @@ grid.arrange(veil_ring_char[[1]],veil_ring_char[[2]],
   * Mushrooms with large ring or no rings will always indicate poison.   
   
 ## General Characteristics
-```{r figure 5 other characteristics, echo=FALSE, out.width = '75%'}
+```{r figure 5 other characteristics, echo=FALSE, out.width = '80%'}
 other <- 
   lapply(names(train_set[,c(5,19:21)]),function(x){
     train_set %>%
@@ -480,11 +482,12 @@ train_control <- trainControl(method="cv", number = 10, p = 0.8) # use 10-folds 
 tune_grid <- data.frame(cp = seq(0.0, 0.2, len=30)) # find the best value for cp
 
 # Train using "caret"
-train_ct <- train(train_set, y, 
-                  method = "rpart", 
-                  tuneLength = 6,
-                  trControl = train_control,
-                  tuneGrid = tune_grid)
+train_ct <- 
+  train(train_set, y, 
+        method = "rpart", 
+        tuneLength = 6,
+        trControl = train_control,
+        tuneGrid = tune_grid)
 # Find best cp value
 train_ct$bestTune
 ```
@@ -513,7 +516,7 @@ The final tree is the following. The top node contain the entire sample, each of
 As we predicted before, 'Odor' is a dominant feature and is the first to be splited, The next feature to be splited is 'Spore print color', while the last is 'Stalk root'. 
 
 Notice that the Desicion tree algoritm splitted 4 features out of 21. 
-```{r figure 10 Plot the tree, echo=FALSE}
+```{r figure 10 Plot the tree, echo=FALSE, out.width = '75%'}
 rpart.plot(x = fit_ct, type =5, extra = 100, 
            box.palette = c("lightblue","orangered"), 
            fallen.leaves=TRUE, tweak = 1)
@@ -526,7 +529,7 @@ The importance of the variable calculated by "Gini Importance " or "mean decreas
 
 We can interperate it as how valuable or neaded this variable to the split.
 We can see that 8 out of the 21 featurs did not contribute any information to the splits , but "Stalk" char. had valuable influence overall.  
-```{r figure 11 Graph variable importhance ct, echo=FALSE}
+```{r figure 11 Graph variable importhance ct, echo=FALSE, out.width = '70%'}
 varImp(fit_ct)%>%
   mutate(char = rownames(.))%>%
   ggplot(aes(x = reorder(char,Overall),y = Overall))+
@@ -553,17 +556,13 @@ rbind(c(model_1_accuracy,
 
 Classification tree model achived "only" 0.998 of accuracy, with false-positibe mistake of 3 edible observation that predicted as poisonuse. In true-life terms, this mistake is forgiven, but it wasn't if the opposite has occure. 
 
-```{r model_1_accuracy, include=FALSE}
-model_1_accuracy <- cm_ct$overall["Accuracy"]
-```
-
 ## Model 1.1 - Classification (decision) trees - only "Visual Characteristics" 
 
 The previos model took into considaration the entire variables and we saw that 2 of the general char. played a significant role in the splitting and importance. Yet, we got accuracy of 99.8% and false-positive mistake of 3 observation. 
 
 Let's look into a case which we are asking to clasify a mushroom by a picture. What are the best featurs for the classification would be? 
 
-  * create new dataset, eliminate the general char. 
+  * create new dataset, omit the general char. 
 ```{r new_mashrooms dataset}
 visual_mashrooms <- 
   mushrooms %>% 
@@ -613,10 +612,11 @@ train_ct_visual$bestTune
 ```
   * Fit the model with best parameter 
 ```{r Fit tuned ct using rpart}
-fit_ct_visual <- rpart(y_visual ~ ., 
-                data = train_visual, 
-                method = "class", 
-                control = rpart.control(cp = train_ct_visual$bestTune$cp , minsplit = 20))
+fit_ct_visual <- 
+  rpart(y_visual ~ ., 
+        data = train_visual, 
+        method = "class", 
+        control = rpart.control(cp = train_ct_visual$bestTune$cp , minsplit = 20))
 ```
 The cross validation relative error (X-val) reaching the minimal value for a tree of size 20, which correspond to a complexity parameter of 0. 
 This tree prouned with 16 more branches than the originat tree. 
@@ -624,7 +624,7 @@ This tree prouned with 16 more branches than the originat tree.
 plotcp(fit_ct_visual)
 ```
   * The 'visual' tree 
-```{r figure 13 plot tuned tree, echo=FALSE}
+```{r figure 13 plot tuned tree, echo=FALSE, out.width='75%'}
 rpart.plot(x = fit_ct_visual, type =5, extra = 100, 
            box.palette = c("lightblue","orangered"), 
            fallen.leaves=TRUE, tweak = 1)
@@ -632,7 +632,7 @@ rpart.plot(x = fit_ct_visual, type =5, extra = 100,
  * Variable importhance 
 
 Stalk still have large influence on the splitting, while ring type has the highst mean decrease gini (used to be zero in the original tree), means that gill type (the first var. to split) and the ring type is highly correlated
-```{r figure 14 variable importhance tuned ct tuned, echo=FALSE}
+```{r figure 14 variable importhance tuned ct tuned, echo=FALSE, out.width='70%'}
 varImp(fit_ct_visual)%>%
   mutate(char = rownames(.))%>%
   ggplot(aes(x = reorder(char,Overall),y = Overall))+
@@ -668,7 +668,7 @@ rm(visual_mashrooms, test_visual, train_visual, y_visual, y_test_visual)
 
 # Model 1.2 - Classification (decision) trees - tuned
 
-  * create new dataset, eliminate the general char, return spore.print.color
+  * create new dataset, omit the general char, return spore.print.color
 ```{r tuned_mashrooms}
 tuned_mashrooms <- 
   mushrooms %>% 
@@ -702,30 +702,32 @@ train_tuned <- train_tuned %>% select(-class)
 # Train using "caret"
 train_control <- trainControl(method="cv", number = 10, p = 0.8)
 tune_grid <- data.frame(cp = seq(0.0, 0.2, len=30))
-train_ct_tuned <- train(train_tuned, y_tuned, 
-                         method = "rpart", 
-                         tuneLength = 6,
-                         trControl = train_control,
-                         tuneGrid = tune_grid)
+train_ct_tuned <- 
+  train(train_tuned, y_tuned, 
+        method = "rpart", 
+        tuneLength = 6,
+        trControl = train_control,
+        tuneGrid = tune_grid)
 # Find best cp value
 train_ct_tuned$bestTune
 
 # Fit the model with best parameter 
 # Fit using "rpart"
-fit_ct_tuned <- rpart(y_tuned ~ ., 
-                       data = train_tuned, 
-                       method = "class", 
-                       control = rpart.control(cp = train_ct_tuned$bestTune$cp , minsplit = 20))
+fit_ct_tuned <- 
+  rpart(y_tuned ~ ., 
+  data = train_tuned, 
+  method = "class", 
+  control = rpart.control(cp = train_ct_tuned$bestTune$cp , minsplit = 20))
 ```
   * Plot the tree 
-```{r tuned tree plot, echo=FALSE}
+```{r tuned tree plot, echo=FALSE, out.width='75%'}
 # figure #
 rpart.plot(x = fit_ct_tuned, type =5, extra = 100, 
            box.palette = c("lightblue","orangered"), 
            fallen.leaves=TRUE, tweak = 1)
 ```
   * Graph variable importhance 
-```{r tuned variable importhance, echo=FALSE}
+```{r tuned variable importhance, echo=FALSE, out.width='70%'}
 # figure 
 varImp(fit_ct_tuned)%>%
   mutate(char = rownames(.))%>%
@@ -735,6 +737,15 @@ varImp(fit_ct_tuned)%>%
   labs(title = "Variable importance for classification trees - tuned model", 
        x = "characteristics", y = "variable importance")
 ```
+
+```{r ct tuned var imp, include=FALSE}
+# var importance list
+ct_tuned_var_imp <- 
+  varImp(fit_ct_tuned) %>%
+  mutate(char = rownames(.)) %>% 
+  arrange(desc(varImp(fit_ct_tuned)$"Overall")) 
+```
+
   * Predict and report accuracy
 ```{r Predict Report accuracy tuned, echo=FALSE}
 # Predict the outcome
@@ -778,32 +789,36 @@ tune_grid <- data.frame(mtry =  c(1:5)) # find the best value for tuning mtry
 
 set.seed(13, sample.kind="Rounding") # if using R 3.5 or earlier, use 'set.seed(13)'
 
-train_rf <- train(train_set, y,
-                  method = "rf",
-                  ntree = 200,  #number of trees to grow
-                  trControl = train_control,
-                  tuneGrid = tune_grid)
+train_rf <- 
+  train(train_set, y,
+        method = "rf",
+        ntree = 200,  #number of trees to grow
+        trControl = train_control,
+        tuneGrid = tune_grid)
 # Find best mtry parameter
 train_rf$bestTune
 ```
-mtry - number of variables randomly sampled as candidates at each split
+
 ```{r figure 15 Plot the mtry selection by its accuracy, echo=FALSE}
 plot(train_rf)
 ```
   * Fit the model with best parameter 
 ```{r fit rf model}
-fit_rf <- randomForest(train_set, y,
-                       ntree = 200, 
-                       nodesize = train_rf$bestTune$mtry)
+fit_rf <- 
+  randomForest(train_set, y,
+               ntree = 200, 
+               nodesize = train_rf$bestTune$mtry)
 ``` 
 The accuracy improve as we add more trees until about 20 trees where accuracy stabilize
 ```{r figure 16 Plot ntree, echo=FALSE}
 plot(fit_rf)
 ```
+Random forest calculate the variable importance over ensembles of randomized trees.
+
 The Random Forest first important variable is 'Odor'. In addition, all general char. are participaing in the classification and have a predictive power. 
 
-Down the list, the less important featurs 'gill attachment' and 'veil color'. Those 2 featurs also wasn't needed in the tuned ct model that got 100% accuracy. Means, we can eliminate them. 
-```{r figure 17 plot variable importhance - rf, echo=FALSE}
+Down the list, the less important featurs 'gill attachment' and 'veil color'. Those 2 featurs also wasn't needed in the tuned ct model that got 100% accuracy. Means, we can omit them. 
+```{r figure 17 plot variable importhance - rf, echo=FALSE, out.width='70%'}
 varImp(fit_rf)%>%
   mutate(char = rownames(.))%>%
   ggplot(aes(x = reorder(char,Overall),y = Overall))+
@@ -812,6 +827,14 @@ varImp(fit_rf)%>%
   labs(title = "Variable importance for random forest model", 
        x = "characteristics", y = "variable importance")
 ```
+  
+```{r rf var importanc list, include=FALSE}
+# var importance list 
+rf_var_imp <- 
+  varImp(fit_rf) %>%
+  mutate(char = rownames(.)) %>% 
+  arrange(desc(varImp(fit_rf)$"Overall"))
+``` 
   * Predict the outcome 
 ```{r predict rf}  
 y_hat_rf <- predict(fit_rf, test_set, type = "class")
@@ -831,109 +854,27 @@ Random forest achived 100% accuracy.
 
 Random forest chooses features randomly during the training process. Therefore, it does not depend highly on any specific set of features. It is more difficult to interpret than a single desicion tree, but the randomized feature selection makes random forest much more accurate than a decision tree.
 
-This is why rf could handel 'Odor' better than the simple first model of decision tree. 
+This is why rf could handel 'Odor' better than the simple first model of class. tree. 
 
 In addition, both rf and ct did not need 'gill attachment' and 'veil color' as a predictors for a perfect accuracy.
 
 
 ## Model 3 - k-nearest neighbors 
 
-  * creating a new data frame 
+K nearest neighbors is a pattern recognition algorithm that uses training datasets to find the k closest relatives in future examples. 
 
-creating a new data frame with just the first column of mushroom class (poison vs. edible)
+When Knn is used in classification with catrgorical data, the basic idea is that each category is mapped into a real number in some optimal way, and then knn classification is performed using those numeric values. 
+
+  * For this model will use the conclusions from the previos models that achived 100% accuracy and omit the two unneccery featurse
+
+  * creating a new data set 
+  
+Since Knn cannot handle characters, we'll convert the mushrooms data set into data set with boolean variables, as the following overview. Then, we'll split the data into training and test sets. 
 ```{r dataset for knn, include=FALSE}
-mushrooms_break_down <- mushrooms[1:1]
+# use the original dataset to create sanitized dataset ommited the 2 features and the veil type we dropped at the begining
+mushrooms_sanitized <-  mushrooms_df %>% select (-gill.attachment, -veil.color, -veil.type)
 
-# removing it from the original data frame as we don't want to iterate over it by mistake
-mushrooms$class <- NULL
-
-# iterating the column names in the original data frame (without the class column)
-for (i in colnames(mushrooms)) {
-  print(paste('going over column:', i))
-  # Extracting factor levels from mushroom. Using [[]] in order to extract it as factor and not subset it as a dataframe.
-  # more here:  https://rpubs.com/tomhopper/brackets and https://www.datamentor.io/r-programming/data-frame/
-  # Note that we can't use '$' e.g. mushrooms$i as this format expects a real static name
-  current_column_levels <- levels(mushrooms[[i]])
-  print(paste('found levels:', list(current_column_levels)))
-  for (j in levels(mushrooms[[i]])) {
-    print(paste('adding column for level:', j))
-    next_column_name = paste(i, '.', j, sep = "")
-    next_column <- ifelse(mushrooms[i] == j,1,0)
-    mushrooms_break_down[next_column_name] <- next_column
-  }
-}
-```
-
-```{r dataset for knn overview, echo=FALSE}
-head(mushrooms_break_down[,1:7],10)
-```
-  * split the new data into training and test sets 
-```{r split knn dataset, include=FALSE}
-set.seed(1, sample.kind="Rounding") # if using R 3.5 or earlier, use `set.seed(1)`
-
-test_index <- createDataPartition(y = mushrooms_break_down$class, times = 1, p = 0.2, list = FALSE)
-
-train_set <- mushrooms_break_down %>% slice(-test_index)
-test_set <- mushrooms_break_down %>% slice(test_index)
-
-rm(test_index)
-
-# define the outcome (class of the mushrooms) = y  
-y <- train_set$class
-
-# restore the true y from test set
-y_test <- test_set$class
-
-# remove the outcome from training and test set
-test_set <- test_set %>% select(-class)
-train_set <- train_set %>% select(-class)
-```
-
-  * Train knn model and find best parameters 
-```{r train knn }
-set.seed(201, sample.kind="Rounding") # if using R 3.5 or earlier, use `set.seed(201)`
-train_control <- trainControl(method="cv", number = 5, p = 0.8)
-tune_grid <- data.frame(k = seq(1, 15, by=1))
-
-set.seed(74, sample.kind="Rounding") # if using R 3.5 or earlier, use `set.seed(74)`
-# Train knn model using "caret"
-train_knn <- train(train_set, y, 
-                   method = "knn", 
-                   trControl = train_control,
-                   tuneGrid = tune_grid)
-# find optimal k
-train_knn$bestTune
-```
-
-```{r figure 18 plot the selection of k by its accuracy, echo=FALSE}
-plot(train_knn)
-```
-  * fit the model with best parameter using "caret"
-```{r fit knn}
-fit_knn <- knn3(train_set, y, 
-                k = train_knn$bestTune$k)
-```
-  * predict the outcome
-```{r predict knn}
-y_hat_knn <- predict(fit_knn, test_set, type = "class")
-```
-  * Report accuracy 
-```{r report knn accuracy }
-cm_knn <- confusionMatrix(y_hat_knn, y_test)
-cm_knn$table
-model_3_accuracy <- cm_knn$overall["Accuracy"]
-rbind(c(model_3_accuracy, 
-        cm_knn$byClass[c("Sensitivity","Specificity","Prevalence","Balanced Accuracy")])) %>%
-  knitr::kable()
-```
-
-## Model 3.1 - k-nearest neighbors - tuned 
-
-```{r mushrooms_sanitized }
-mushrooms_sanitized <- mushrooms %>% select (-gill.attachment, -veil.color, -veil.type) 
-```
-
-```{r convert sanitized and split, include=FALSE}
+# creating a new data frame with just the first column of mushroom class (poison vs. edible)
 mushrooms_break_down <- mushrooms_sanitized[1:1]
 
 # removing it from the original data frame as we don't want to iterate over it by mistake
@@ -955,10 +896,15 @@ for (i in colnames(mushrooms_sanitized)) {
   }
 }
 
+```
+
+```{r dataset for knn overview, echo=FALSE}
+# overview of the first 7 rows of the new datadet
 head(mushrooms_break_down[,1:7],10)
-
+```
+  * we'll split the new data set into training and test sets 
+```{r split knn dataset, include=FALSE}
 # split the new data into training and test sets 
-
 set.seed(1, sample.kind="Rounding") # if using R 3.5 or earlier, use `set.seed(1)`
 
 test_index <- createDataPartition(y = mushrooms_break_down$class, times = 1, p = 0.2, list = FALSE)
@@ -979,73 +925,74 @@ test_set <- test_set %>% select(-class)
 train_set <- train_set %>% select(-class)
 ```
 
-```{r Train fit predict knn tuned, include=FALSE}
-# Train knn tuned model and find best parameters 
+  * Train knn model and find best parameters
+
+We'll use 10-folds cross-validation to avoid overfitting, and set a tune_grid for K in order to find the optimal parameter
+```{r train knn }
 set.seed(201, sample.kind="Rounding") # if using R 3.5 or earlier, use `set.seed(201)`
 train_control <- trainControl(method="cv", number = 5, p = 0.8)
 tune_grid <- data.frame(k = seq(1, 15, by=1))
 
 set.seed(74, sample.kind="Rounding") # if using R 3.5 or earlier, use `set.seed(74)`
 # Train knn model using "caret"
-train_knn <- train(train_set, y, 
-                   method = "knn", 
-                   trControl = train_control,
-                   tuneGrid = tune_grid)
+train_knn <- 
+  train(train_set, y, 
+        method = "knn", 
+        trControl = train_control,
+        tuneGrid = tune_grid)
 # find optimal k
 train_knn$bestTune
+```
+The model achive the highest accuracy with k=3, means 3 variables in each neighborhood.
 
-# fit the model with best parameter using "caret"
+In case of low accuracy, we can suspact the lowst K as overtaining of the model
+```{r figure 18 plot the selection of k by its accuracy, echo=FALSE}
+plot(train_knn)
+```
+  * fit the model with best parameter
+```{r fit knn}
 fit_knn <- knn3(train_set, y, 
                 k = train_knn$bestTune$k)
-
-# predict the outcome
+```
+  * predict the outcome and report accuracy
+```{r predict knn, echo=FALSE}
 y_hat_knn <- predict(fit_knn, test_set, type = "class")
-```
-  * Report accuracy 
-```{r tuned accuracy, echo=FALSE}
-cm_knn_tuned <- confusionMatrix(y_hat_knn_tuned, y_test)
-cm_knn_tuned$table
-model_3.1_accuracy <- cm_knn_tuned$overall["Accuracy"]
-rbind(c(model_3.1_accuracy, 
-        cm_knn_tuned$byClass[c("Sensitivity","Specificity","Prevalence","Balanced Accuracy")])) %>%
+
+cm_knn <- confusionMatrix(y_hat_knn, y_test)
+cm_knn$table
+model_3_accuracy <- cm_knn$overall["Accuracy"]
+rbind(c(model_3_accuracy, 
+        cm_knn$byClass[c("Sensitivity","Specificity","Prevalence","Balanced Accuracy")])) %>%
   knitr::kable()
 ```
-  * model results 
+  * Model results
 
+The low K=3 could lead us to an overtraining of the model, but even though and with the omission of two unneccery features, Knn achived 100% accuracy.  
 
+# The Models Results 
 
+## The models accuracy
 
+Random forest, Knn and Classification trees(tuned - variable ommited) achived the perfect 100% accuracy.
 
-# Models results 
-
-## summary of decision and rf 
-
-```{r var imp comparison, echo=FALSE}
-cbind.data.frame("rf"= varImp(fit_rf) %>%
-                   mutate(char = rownames(.)) %>% 
-                   arrange(desc(varImp(fit_rf)$"Overall")) %>%
-                   slice(1:10), 
-                 "ct"= varImp(fit_ct) %>%
-                   mutate(char = rownames(.)) %>% 
-                   arrange(desc(varImp(fit_ct)$"Overall")) %>%
-                   slice(1:10),
-                 "ct_tuned"= varImp(fit_ct_tuned) %>%
-                   mutate(char = rownames(.)) %>% 
-                   arrange(desc(varImp(fit_ct_tuned)$"Overall")) %>%
-                   slice(1:10)) %>%
-  knitr::kable()
-```
-
-## summary of the models accuracy
+The first two class. tree models achive high, but not enogh, accuracy while the latter got a fatal false-negative mistake by classifing poisonus as edible. 
 
 ```{r models accuracy, echo=FALSE}
 rbind("Classification Trees"= model_1_accuracy,
-      "Classification Trees - tuned" = model_1.1_accuracy,
+      "Classification Trees - only 'Visual Characteristics'" = model_1.1_accuracy,
+      "Classification Trees - tuned" = model_1.2_accuracy,
       "Random Forest" = model_2_accuracy,
-      "Knn" = model_3_accuracy, 
-      "Knn - bigger k" = model_3.1_accuracy) %>% 
+      "Knn" = model_3_accuracy) %>% 
 knitr::kable()
 ```
+## The most important featurs according to the 1.2 class. tree model and random forest
+
+```{r var imp comparison, echo=FALSE}
+cbind.data.frame("Class. trees"=ct_tuned_var_imp,"Random forest"=rf_var_imp) %>%
+  knitr::kable()
+```
+
+
 
 # conclusion 
 

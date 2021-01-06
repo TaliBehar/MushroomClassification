@@ -30,7 +30,8 @@ library(randomForest) # for random forest
 
 # Importing the data - read csv file 
 # TODO: change to local file
-mushrooms <- read.csv("D:/OneDrive/Documents/Tali/Tali data science studies/MushroomClassification/mushrooms.csv")
+mushrooms_df <- read.csv("D:/OneDrive/Documents/Tali/Tali data science studies/MushroomClassification/mushrooms.csv")
+mushrooms <- mushrooms_df
 
 ## 3. Get A Glimpse Of Mushroom classification Dataset
 
@@ -410,6 +411,11 @@ varImp(fit_ct_tuned)%>%
   labs(title = "Variable importance for classification trees - tuned model", 
        x = "characteristics", y = "variable importance")
 
+# var importance list
+ct_tuned_var_imp <- varImp(fit_ct_tuned) %>%
+  mutate(char = rownames(.)) %>% 
+  arrange(desc(varImp(fit_ct_tuned)$"Overall")) 
+
 # Predict the outcome
 y_hat_ct_tuned <- predict(fit_ct_tuned, test_tuned, type = "class")
 
@@ -466,6 +472,12 @@ varImp(fit_rf)%>%
   labs(title = "Variable importance for random forest model", 
        x = "characteristics", y = "variable importance")
 
+# var importance list 
+rf_var_imp <- varImp(fit_rf) %>%
+  mutate(char = rownames(.)) %>% 
+  arrange(desc(varImp(fit_rf)$"Overall")) %>%
+  slice(1:10)
+
 # Predict the outcome  
 y_hat_rf <- predict(fit_rf, test_set, type = "class")
 
@@ -480,30 +492,36 @@ rbind(c(model_2_accuracy,
 #----------------------------------------------------
 # Model 3 - k-nearest neighbors 
 
-# for knn model, we'll have to convert our data to bulian (0/1) instead of characters
+# For this model will use the conclusions from the previos models that achived 100% accuracy and omit the two unneccery featurse
+
+# creating a new data set - we'll have to convert our data to bulian (0/1) instead of characters 
+
+# use the original dataset to create sanitized dataset ommited the 2 features and the veil type we dropped at the begining
+mushrooms_sanitized <-  mushrooms_df %>% select (-gill.attachment, -veil.color, -veil.type)
 
 # creating a new data frame with just the first column of mushroom class (poison vs. edible)
-mushrooms_break_down <- mushrooms[1:1]
+mushrooms_break_down <- mushrooms_sanitized[1:1]
 
 # removing it from the original data frame as we don't want to iterate over it by mistake
-mushrooms$class <- NULL
+mushrooms_sanitized$class <- NULL
 
 # iterating the column names in the original data frame (without the class column)
-for (i in colnames(mushrooms)) {
+for (i in colnames(mushrooms_sanitized)) {
   print(paste('going over column:', i))
   # Extracting factor levels from mushroom. Using [[]] in order to extract it as factor and not subset it as a dataframe.
   # more here:  https://rpubs.com/tomhopper/brackets and https://www.datamentor.io/r-programming/data-frame/
   # Note that we can't use '$' e.g. mushrooms$i as this format expects a real static name
-  current_column_levels <- levels(mushrooms[[i]])
+  current_column_levels <- levels(mushrooms_sanitized[[i]])
   print(paste('found levels:', list(current_column_levels)))
-  for (j in levels(mushrooms[[i]])) {
+  for (j in levels(mushrooms_sanitized[[i]])) {
     print(paste('adding column for level:', j))
     next_column_name = paste(i, '.', j, sep = "")
-    next_column <- ifelse(mushrooms[i] == j,1,0)
+    next_column <- ifelse(mushrooms_sanitized[i] == j,1,0)
     mushrooms_break_down[next_column_name] <- next_column
   }
 }
 
+# overview of the first 7 rows of the new datadet
 head(mushrooms_break_down[,1:7],10)
 
 # split the new data into training and test sets 
@@ -561,109 +579,17 @@ rbind(c(model_3_accuracy,
   knitr::kable()
 
 #----------------------------------------------------
-# Model 3.1 - k-nearest neighbors, eliminate gill.attachment and veil.color
-
-# eliminate 2 featurs
-mushrooms_sanitized <- mushrooms %>% select (-gill.attachment, -veil.color) 
-# creating a new data frame with just the first column of mushroom class (poison vs. edible)
-mushrooms_break_down <- mushrooms_sanitized[1:1]
-
-# removing it from the original data frame as we don't want to iterate over it by mistake
-mushrooms_sanitized$class <- NULL
-
-# iterating the column names in the original data frame (without the class column)
-for (i in colnames(mushrooms_sanitized)) {
-  print(paste('going over column:', i))
-  # Extracting factor levels from mushroom. Using [[]] in order to extract it as factor and not subset it as a dataframe.
-  # more here:  https://rpubs.com/tomhopper/brackets and https://www.datamentor.io/r-programming/data-frame/
-  # Note that we can't use '$' e.g. mushrooms$i as this format expects a real static name
-  current_column_levels <- levels(mushrooms_sanitized[[i]])
-  print(paste('found levels:', list(current_column_levels)))
-  for (j in levels(mushrooms_sanitized[[i]])) {
-    print(paste('adding column for level:', j))
-    next_column_name = paste(i, '.', j, sep = "")
-    next_column <- ifelse(mushrooms_sanitized[i] == j,1,0)
-    mushrooms_break_down[next_column_name] <- next_column
-  }
-}
-
-head(mushrooms_break_down[,1:7],10)
-
-# split the new data into training and test sets 
-
-set.seed(1, sample.kind="Rounding") # if using R 3.5 or earlier, use `set.seed(1)`
-
-test_index <- createDataPartition(y = mushrooms_break_down$class, times = 1, p = 0.2, list = FALSE)
-
-train_set <- mushrooms_break_down %>% slice(-test_index)
-test_set <- mushrooms_break_down %>% slice(test_index)
-
-rm(test_index)
-
-# define the outcome (class of the mushrooms) = y  
-y <- train_set$class
-
-# restore the true y from test set
-y_test <- test_set$class
-
-# remove the outcome from training and test set
-test_set <- test_set %>% select(-class)
-train_set <- train_set %>% select(-class)
-
-# Train knn model and find best parameters 
-set.seed(201, sample.kind="Rounding") # if using R 3.5 or earlier, use `set.seed(201)`
-train_control <- trainControl(method="cv", number = 5, p = 0.8)
-tune_grid <- data.frame(k = seq(1, 15, by=1))
-
-set.seed(74, sample.kind="Rounding") # if using R 3.5 or earlier, use `set.seed(74)`
-# Train knn model using "caret"
-train_knn_tuned <- train(train_set, y, 
-                    method = "knn", 
-                    trControl = train_control,
-                    tuneGrid = tune_grid)
-# find optimal k
-train_knn_tuned$bestTune
-
-# plot the selection of k by its accuracy
-# figure 18 # 
-plot(train_knn_tuned)
-
-# fit the model with best parameter using "caret"
-fit_knn_tuned <- knn3(train_set, y, 
-                  k = train_knn_tuned$bestTune$k)
-
-# predict the outcome
-y_hat_knn_tuned <- predict(fit_knn_tuned, test_set, type = "class")
-
-# Report accuracy 
-cm_knn_tuned <- confusionMatrix(y_hat_knn_tuned, y_test)
-cm_knn_tuned$table
-model_3.1_accuracy <- cm_knn_tuned$overall["Accuracy"]
-rbind(c(model_3.1_accuracy, 
-        cm_knn_tuned$byClass[c("Sensitivity","Specificity","Prevalence","Balanced Accuracy")])) %>%
-  knitr::kable()
-
-#---------------------------
-# summary of decision and rf 
-cbind.data.frame("rf"= varImp(fit_rf) %>%
-                   mutate(char = rownames(.)) %>% 
-                   arrange(desc(varImp(fit_rf)$"Overall")) %>%
-                   slice(1:10), 
-                 "ct"= varImp(fit_ct) %>%
-                   mutate(char = rownames(.)) %>% 
-                   arrange(desc(varImp(fit_ct)$"Overall")) %>%
-                   slice(1:10),
-                 "ct_tuned"= varImp(fit_ct_tuned) %>%
-                   mutate(char = rownames(.)) %>% 
-                   arrange(desc(varImp(fit_ct_tuned)$"Overall")) %>%
-                   slice(1:10)) %>%
-  knitr::kable()
+# Models results 
 
 # summary of the models accuracy
 rbind("Classification Trees"= model_1_accuracy,
-      "Classification Trees - tuned" = model_1.1_accuracy,
+      "Classification Trees - only 'Visual Characteristics'" = model_1.1_accuracy,
+      "Classification Trees - tuned" = model_1.2_accuracy,
       "Random Forest" = model_2_accuracy,
-      "Knn" = model_3_accuracy, 
-      "Knn - bigger k" = model_3.1_accuracy) %>% 
-knitr::kable()
+      "Knn" = model_3_accuracy) %>% 
+  knitr::kable()
+
+# The most important featurs according to the 1.2 class. tree model and random forest
+cbind.data.frame("Class. trees"=ct_tuned_var_imp,"Random forest"=rf_var_imp) %>%
+  knitr::kable()
 

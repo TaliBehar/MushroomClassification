@@ -45,7 +45,7 @@ section... < TODO>)
 
 2.	**The features**
 
-  For classifying mushrooms, whether it's outside or through images, it's important to be familiar with all the details about them. I chose to take all of the 22 mushrooms characteristics to be used for the prediction; Odor, population,	habitat, bruises, cap, gill, stalk, veil, ring and spore-print-color.
+  For classifying mushrooms, whether it's outside or through images, it's important to be familiar with all the details about them. I chose to take all of the 22 mushrooms characteristics to be used for the prediction: Odor, population,	habitat, bruises, cap, gill, stalk, veil, ring and spore-print-color.
     
 ## Method 
   
@@ -61,7 +61,7 @@ The ML algorithms that were chosen to model the mushroom classification dataset 
  
  * Omit the unimportant features.
  
- * Constract canonical dataset for applying the KNN algorithm.  
+ * Construct canonical dataset for applying the KNN algorithm.  
 
 ## Model Estimation
 
@@ -71,20 +71,22 @@ Overall accuracy is the simplest way to evaluate the algorithm when the outcomes
 
 ## Model Results 
 
-Random forest, KNN and Classification trees (model 1.2) achieved the perfect 100% accuracy, but the RF model was the fastest among them, by ~<TODO>%.
+Random forest, KNN and Classification trees (model 1.2) achieved the perfect 100% accuracy.
 
 ## Conclusion
 
-* The chosen models for classifying mushrooms class are Random Forest and KNN.
+* The chosen models for predicting the mushrooms class are Random Forest and KNN, which are more flexible and easier to train and tune, and are better for classifying. 
+
+* Random forest performed better runtime- 422% faster than KNN runtime.
 
 * The most important features for the classification are 'spore.print.color', 'gill.color', 'stalk.surface.above.ring' and 'stalk.surface.below.ring' 
  
  
-# Data Preperation
+# Data Preparation
 
-## Installing Required Packeges
+## Installing Required Packages
 
-```{r required packeges, eval=FALSE, include=FALSE}
+```{r required packages, eval=FALSE, include=FALSE}
 if(!require(readr)) install.packages("readr", repos = "http://cran.us.r-project.org")
 if(!require(tidyverse)) install.packages("tidyverse", repos = "http://cran.us.r-project.org")
 if(!require(caret)) install.packages("caret", repos = "http://cran.us.r-project.org")
@@ -97,7 +99,7 @@ if(!require(ggplot2)) install.packages("ggplot2", repos = "http://cran.us.r-proj
 if(!require(randomForest)) install.packages("randomForest", repos = "http://cran.us.r-project.org")
 ```
 
-```{r install required packeges, echo=TRUE}
+```{r install required packages, echo=TRUE}
 library(readr)
 library(tidyverse)
 library(caret)
@@ -146,18 +148,18 @@ We can distinguish between visual and general characteristics:
 
 **Rows** 
 
-Each row represent one observation on one mushroom and contain its class and unique characteristics.
+Each row represents one observation on one mushroom and contain its class and unique characteristics.
 
 
-Moving forward, we'll learn about the mushrooms characteristics and their influence on the mashroom's classification.
+Moving forward, we'll learn about the mushroom’s characteristics and their influence on the mushroom’s classification.
 
 ### The dataset is categorical
   
 The next table specifies the class of the outcome and features (factor), and the levels of each of the factors. 
   
-'veil.type' has only 1 level which is not contributing infomation as a feature. We'll remove it from the data and won't use it as a feature. 
+'veil.type' has only 1 level which is not contributing information as a feature. We'll remove it from the data and won't use it as a feature. 
 
-Some observations contain '?' in <TBS>, and we chose to use it as a regular factor, as the distribution is equal between edible and poisonous, and if we omitted these rows, we would lose 40% of the data.
+Some observations contain '?' in 'stalk.root' column, and we chose to use it as a regular factor, as the distribution is equal between edible and poisonous, and if we omitted these rows, we would lose 40% of the data.
 ```{r class and levels summarize , echo=FALSE}
 cbind.data.frame("mushrooms characteristics"= names(mushrooms),
                  "class"= sapply(mushrooms,(function(x){class(x)})), 
@@ -172,11 +174,11 @@ mushrooms$veil.type<-NULL
 ```
 ### The prevalence of the observation
 
-The prevalence of the mashrooms class in the dataset is almost about the same .
+The prevalence of the mushrooms class in the dataset is almost about the same.
   
 52% of the observations belong to edible type and 48% are poisonous, which means we should not expect biased prediction. 
 
-Predicting poisonous mushrooms as edible can be a terrible mistake, so in addition to the accuracy of the model, we'll also take a look of the other parts of the 'confusionMatrix', that contains the sensitivity, specificity, prevalence and balanced accuracy.    
+Predicting poisonous mushrooms as edible can be a terrible mistake, so in addition to the accuracy of the model, we'll also look at the other parts of the 'confusionMatrix', that contains the sensitivity, specificity, prevalence and balanced accuracy.    
 ```{r mushroom type, echo=FALSE}
 mushrooms %>% 
   group_by(class) %>% 
@@ -302,7 +304,7 @@ grid.arrange(gill_char[[1]],gill_char[[2]],gill_char[[3]],gill_char[[4]],
     - Stalk color below ring: brown=n, buff=b, cinnamon=c, gray=g, orange=o, pink=p, red=e, white=w, yellow=y
 
 
-  * Buff, cinnamon and yellow stalk color above ring will always indicate poisonous mushroom. All other stalk characteristics distributing in different frequancy between the mushrooms class.  
+  * Buff, cinnamon, and yellow stalk color above ring will always indicate poisonous mushroom. All other stalk characteristics distributing in different frequency between the mushrooms class.  
 
 ```{r figure 3 stalk characteristics, echo=FALSE, out.width = '80%'}
 stalk_char <- 
@@ -358,7 +360,7 @@ grid.arrange(veil_ring_char[[1]],veil_ring_char[[2]],
 
     - almond=a, anise=l, creosote=c, fishy=y, foul=f, musty=m, none=n, pungent=p, spicy=s
     
-    - There are significant differens in the odor distribution. Poisonus and edible mushrooms smelles very diffrently and we can consider the odor as a dominant feature. 
+    - There are significant differences in the odor distribution. Poisonous and edible mushrooms smelles very differently and we can consider the odor as a dominant feature. 
     
     
   * Spore print color 
@@ -367,21 +369,21 @@ grid.arrange(veil_ring_char[[1]],veil_ring_char[[2]],
   
     - black=k, brown=n, buff=b, chocolate=h, green=r, orange=o, purple=u, white=w, yellow=y
     
-    - Green print color will always indicate poison. 
+    - Green print color will always indicate poisonous.  
     
     
   * Population - the way they spread in their habitat 
   
     - abundant=a, clustered=c, numerous=n, scattered=s, several=v, solitary=y
     
-    - Poisonus mushrooms can never be found abundant or in numerous numbers.
+    - Poisonous mushrooms can never be found abundant or in numerous numbers.
   
   
   * Habitat
   
     - grasses=g, leaves=l, meadows=m, paths=p, urban=u, waste=w, woods=d
     
-    - Poisonus mushrooms can grow anywhere but can never be found on waste.
+    - Poisonous mushrooms can grow anywhere but can never be found on waste.
 
 ```{r figure 5 other characteristics, echo=FALSE, out.width = '80%'}
 other <- 
@@ -397,7 +399,7 @@ grid.arrange(other[[1]],other[[2]],other[[3]],other[[4]], ncol=2, nrow=2)
  
 ## Relationships and correlation in the data 
 
-All the above characteristics are combining one mushroom. Since that, It can be assumed that all the features are correlated with the class of the mushroom and among themselves.
+All the above characteristics are combining one mushroom. Since that, it can be assumed that all the features are correlated with the class of the mushroom and among themselves.
 
 In the above plots we noticed high influence of the odor on the mushroom class. 
 Yet, in order to select the best other features that have a strong predictive power, we need to see if they are correlated or not.  
@@ -434,9 +436,9 @@ chi2_test_for_char <-
 }) %>% 
   matrix(nrow=21, byrow = FALSE)
 ```
-The rows and the columns represent the 21 features. The diagonal represent the correlation of the feature with itself (always correlated).  
+The rows and the columns represent the 21 features. The diagonal represents the correlation of the feature with itself (always correlated).  
 
-We can see that all the features correlated with each other except 'veil color' and 'ring number' that are indepandent from each other  
+We can see that all the features correlated with each other except 'veil color' and 'ring number' that are independent from each other  
 ```{r figure 6 car p.value matrix, echo=FALSE, out.width = '80%'}
 plot(chi2_test_for_char, 
      col=c("white", "lightblue"),
@@ -453,7 +455,7 @@ chi2_test_for_class <-
 }) %>% 
   matrix(ncol=21, byrow = FALSE)
 ```
-All the characteristics are corraleted with the mushroom class 
+All the characteristics are correlated with the mushroom class 
 ```{r figure 7 car class p.value matrix, echo=FALSE, out.width = '60%'}
 plot(chi2_test_for_class, 
      col=c("white", "lightblue"), 
@@ -465,7 +467,7 @@ plot(chi2_test_for_class,
 
 A classification algorithm is a function that weighs the input features so that the output separates one class into positive values and the other into negative values. Classifier training is performed to identify the weights that provide the most accurate and best separation of the two classes of data.
 
-Among the common classification algorithms are clssification/desicion trees, Random forest, and KNN. The latter works slightly differnt than the first two. 
+Among the common classification algorithms are classification/decision trees (ct), Random forest (rf), and K-nearest neighbor (KNN). The latter works slightly different than the first two. 
 
 Since the correlation matrix showed that the features are dependent, we will start with all the 21 features. 
 
@@ -486,7 +488,6 @@ We define $\hat{p}_{j,k}$= the proportion of observation in partition ${j}$ that
 # (https://www.edureka.co/blog/implementation-of-decision-tree/) 
 # http://www.milbo.org/rpart-plot/prp.pdf # rpart plots examples
 # https://csantill.github.io/RTuningModelParameters/
-# add explenation on cp from 31.10.3 (p.589)
 ```
   * Train ct model and find best parameters
   
@@ -505,9 +506,9 @@ train_ct <-
 # Find best cp value
 train_ct$bestTune
 ```
-The complexity parameter (cp) is the minimum improvement in the model that is needed in each node. 
+The complexity parameter (cp) is the minimum improvement in the model that is needed in each node (the Gini impurity must improve by a factor of cp for the new partition to be added). 
 
-When cp=0 then the tree is fully grown and no need to prune it.  
+When cp=0 then the tree is fully grown and no need to prune it. Large values of cp will force the algorithm to stop earlier which results in fewer nodes. 
 ```{r figure 8 Plot the cp selection by its accuracy, echo=FALSE}
 plot(train_ct)
 ```
@@ -529,7 +530,7 @@ The final tree is the following. The top node contain the entire sample, each of
 
 As we predicted before, 'Odor' is a dominant feature and is the first to be splitted, the next feature to be splitted is 'Spore print color', while the last is 'Stalk root'. 
 
-Notice that the classification trees algoritm splitted 4 features out of 21. 
+Notice that the algorithm splitted 4 features out of 21. 
 ```{r figure 10 Plot the tree, echo=FALSE, out.width = '75%'}
 rpart.plot(x = fit_ct, type =5, extra = 100, 
            box.palette = c("lightblue","orangered"), 
@@ -543,7 +544,7 @@ The importance of the variable calculated by "Gini Importance" or "mean decrease
 
 We can interpret it as how valuable or needed this variable to the split.
 We can see that 8 out of the 21 features did not contribute any information to the splits , but "Stalk" characteristics had valuable influence overall.  
-```{r figure 11 Graph variable importhance ct, echo=FALSE, out.width = '70%'}
+```{r figure 11 Graph variable importance ct, echo=FALSE, out.width = '70%'}
 varImp(fit_ct)%>%
   mutate(char = rownames(.))%>%
   ggplot(aes(x = reorder(char,Overall),y = Overall))+
@@ -568,17 +569,17 @@ rbind(c(model_1_accuracy,
 ```
   * Model result
 
-Classification trees model achived "only" 0.998 of accuracy, with false-positibe mistake of 3 edible observation that predicted as poisonuse. In true-life terms, this mistake is forgiven, but it wasn't if the opposite has occure. 
+Classification trees model achieved "only" 0.998 of accuracy, with false-positive mistake of 3 edible observation that predicted as poisonous In true-life terms, this mistake is forgiven, but it wasn't if the opposite has occurred. 
 
 ## Model 1.1 - Classification trees - only "Visual Characteristics" 
 
-The previos model took into considaration the entire variables and we saw that 2 of the general char. played a significant role in the splitting and importance. Yet, we got accuracy of 99.8% and false-positive mistake of 3 observation. 
+The previous model took into consideration the entire variables and we saw that 2 of the general characteristics played a significant role in the splitting and importance. Yet, we got accuracy of 99.8% and false-positive mistake of 3 observation. 
 
-Let's look into a case which we are asking to clasify a mushroom by a picture. What are the best featurs for the classification would be? 
+Let's investigate a case which we are asking to classify a mushroom by an image. What are the best features for the classification would be? 
 
-  * create new dataset, omit the general char. 
-```{r new_mashrooms dataset}
-visual_mashrooms <- 
+  * create new dataset, omit the general characteristics
+```{r new_mushrooms dataset}
+visual_mushrooms <- 
   mushrooms %>% 
   select(-odor, -habitat, -population, -spore.print.color)
 ```
@@ -589,12 +590,12 @@ set.seed(1, sample.kind="Rounding") # if using R 3.5 or earlier, use `set.seed(1
 # split the new data into training and test sets 
 set.seed(1, sample.kind="Rounding") # if using R 3.5 or earlier, use `set.seed(1)`
 
-# Test_visual will be 20% of visual_mashrooms data
-visual_test_index <- createDataPartition(y = visual_mashrooms$class, 
+# Test_visual will be 20% of visual_mushrooms data
+visual_test_index <- createDataPartition(y = visual_mushrooms$class, 
                                          times = 1, p = 0.2, list = FALSE)
 
-train_visual <- visual_mashrooms %>% slice(-visual_test_index)
-test_visual <- visual_mashrooms %>% slice(visual_test_index)
+train_visual <- visual_mushrooms %>% slice(-visual_test_index)
+test_visual <- visual_mushrooms %>% slice(visual_test_index)
 
 # Remove test_index
 rm(visual_test_index)
@@ -612,7 +613,7 @@ train_visual <- train_visual %>% select(-class)
 
   * Train tuned ct model and find best parameters
 
-We'll repeat the previons steps and train the model to find the best complexity parameter with 10-fold cross-validation to avoid overfitting. 
+We'll repeat the previous steps and train the model to find the best complexity parameter with 10-folds cross-validation to avoid overfitting. 
 ```{r Train tuned ct using caret }
 train_control <- trainControl(method="cv", number = 10, p = 0.8)
 tune_grid <- data.frame(cp = seq(0.0, 0.2, len=30))
@@ -633,7 +634,7 @@ fit_ct_visual <-
         control = rpart.control(cp = train_ct_visual$bestTune$cp , minsplit = 20))
 ```
 The cross validation relative error (X-val) reaching the minimal value for a tree of size 20, which correspond to a complexity parameter of 0. 
-This tree prouned with 16 more branches than the originat tree. 
+This tree pruned with 16 more branches than the original tree. 
 ```{r figure 12 Plot size of the tree (nodes) by cp, echo=FALSE}
 plotcp(fit_ct_visual)
 ```
@@ -643,16 +644,16 @@ rpart.plot(x = fit_ct_visual, type =5, extra = 100,
            box.palette = c("lightblue","orangered"), 
            fallen.leaves=TRUE, tweak = 1)
 ```
- * Variable importhance 
+ * Variable importance  
 
-Stalk still have large influence on the splitting, while ring type has the highst mean decrease gini (used to be zero in the original tree), means that gill type (the first var. to split) and the ring type is highly correlated
-```{r figure 14 variable importhance tuned ct tuned, echo=FALSE, out.width='70%'}
+Stalk still have large influence on the splitting, while ring type has the highest 'mean decrease Gini' (used to be zero in the original tree), means that gill type (the first var. to split) and the ring type is highly correlated.
+```{r figure 14 variable importance tuned ct tuned, echo=FALSE, out.width='70%'}
 varImp(fit_ct_visual)%>%
   mutate(char = rownames(.))%>%
   ggplot(aes(x = reorder(char,Overall),y = Overall))+
   geom_bar(stat = "identity", fill="lightblue")+
   coord_flip()+
-  labs(title = "Variable importance for classification trees - tuned model", 
+  labs(title = "Variable importance for classification trees - visual model", 
        x = "characteristics", y = "variable importance")
 ```
   * Predict the outcome
@@ -670,21 +671,21 @@ rbind(c(model_1.1_accuracy,
 ```
   * Model results
   
-The visual model achived lower result than the original - 99.6% accuracy.  
+The visual model achieved lower result than the original - 99.6% accuracy.  
 
-There is 5 false- positive results (5 edible predicted poisonus) and one false-negative result (poisonus predicted as edible). 
+There is 5 false-positive results (5 edible predicted poisonous) and one false-negative result (poisonous predicted as edible). 
 
-Means, one of the general char. is essential for the classification process. 
+Means, one of the general characteristics is essential for the classification process. 
 
 ```{r remove the next objects, include=FALSE}
-rm(visual_mashrooms, test_visual, train_visual, y_visual, y_test_visual)
+rm(visual_mushrooms, test_visual, train_visual, y_visual, y_test_visual)
 ```
 
 # Model 1.2 - Classification trees - tuned
 
   * create new dataset, omit the general char, return spore.print.color
-```{r tuned_mashrooms}
-tuned_mashrooms <- 
+```{r tuned_mushrooms}
+tuned_mushrooms <- 
   mushrooms %>% 
   select(-odor, -habitat, -population)
 ```
@@ -693,11 +694,11 @@ tuned_mashrooms <-
 #split the new data into training and test sets 
 set.seed(1, sample.kind="Rounding") # if using R 3.5 or earlier, use `set.seed(1)`
 
-# Test_tuned will be 20% of new_mashrooms data
-tuned_test_index <- createDataPartition(y = tuned_mashrooms$class, times = 1, p = 0.2, list = FALSE)
+# Test_tuned will be 20% of tuned_mushrooms data
+tuned_test_index <- createDataPartition(y = tuned_mushrooms$class, times = 1, p = 0.2, list = FALSE)
 
-train_tuned <- tuned_mashrooms %>% slice(-tuned_test_index)
-test_tuned <- tuned_mashrooms %>% slice(tuned_test_index)
+train_tuned <- tuned_mushrooms %>% slice(-tuned_test_index)
+test_tuned <- tuned_mushrooms %>% slice(tuned_test_index)
 # Remove test_index
 rm(tuned_test_index)
 
@@ -734,15 +735,13 @@ fit_ct_tuned <-
   control = rpart.control(cp = train_ct_tuned$bestTune$cp , minsplit = 20))
 ```
   * Plot the tree 
-```{r tuned tree plot, echo=FALSE, out.width='75%'}
-# figure #
+```{r figure 15 tuned tree plot, echo=FALSE, out.width='75%'}
 rpart.plot(x = fit_ct_tuned, type =5, extra = 100, 
            box.palette = c("lightblue","orangered"), 
            fallen.leaves=TRUE, tweak = 1)
 ```
-  * Graph variable importhance 
-```{r tuned variable importhance, echo=FALSE, out.width='70%'}
-# figure 
+  * Graph variable importance  
+```{r figure 16 tuned variable importance , echo=FALSE, out.width='70%'}
 varImp(fit_ct_tuned)%>%
   mutate(char = rownames(.))%>%
   ggplot(aes(x = reorder(char,Overall),y = Overall))+
@@ -777,34 +776,33 @@ rbind(c(model_1.2_accuracy,
 ```
   * Model results
   
-The model achived a perfect accuracy of 100%. 
+The model achieved a perfect accuracy of 100%. 
 It can be assumed that 'Odor' that was a dominant feature in the original model was "stand in the way" toward a perfect prediction. Smell can be very confusing sometimes. 
 
-In addition, the model suggest that 'gill attachment', 'veil color', and 'veil type' does not contributing information to the model and therfore are not needed, alongside with 'odor', 'population' and 'habitat' 
+In addition, the model suggests that 'gill attachment', 'veil color', and 'veil type' does not contributing information to the model and therefore are not needed, alongside with 'odor', 'population' and 'habitat' 
 
 ```{r remove objects, include=FALSE}
 # remove the next objects
-rm(test_tuned, train_tuned, y_tuned, y_test_tuned)
+rm(tuned_mushrooms,test_tuned, train_tuned, y_tuned, y_test_tuned)
 ```
 
   * Advantages of Classification trees
   
-They are highly interpretable and easy to visualize (if small enough). They can model human decision processes and don’t require use of dummy predictors for categorical variables.
+Classification trees are highly interpretable and easy to visualize (if small enough). They can model human decision processes and don’t require use of dummy predictors for categorical variables.
 
   * Classification trees limitations
 
-The approach via recursive partitioning can easily over-train and is therefore a bit harder to train than. In terms of accuracy, it is rarely the best performing method since
-it is not very flexible and is highly unstable to changes in training data. That is Why we saw diffrences in the above models, when we ommited/add featurs. 
+The approach via recursive partitioning can easily over-train and is therefore a bit harder to train than. In terms of accuracy, it is rarely the best performing method since it is not very flexible and is highly unstable to changes in training data. That is Why we such big differences in the above models (particularly in the size of the trees), when we omitted/add features. 
 
 
 ## Model 2 - Random Forest
 
-The Random forests combines multiple Class. trees. Its goal is to improve prediction performance
-and reduce instability by averaging multiple Class. trees.
+The Random forests combines multiple Classification trees. Its goal is to improve prediction performance
+and reduce instability by averaging multiple Classification trees.
 
   * Train rf model and find best parameters
 
-Same here, we will use 10-fold cross validation and set a tune_grid for mtry (number of variables randomly sampled as candidates at each split). We can see in the next plot that the accuracy is higher when mtry reach to 4 randomly sampled variables.  
+Same here, we will use 10-folds cross validation and set a tune_grid for mtry (number of variables randomly sampled as candidates at each split). We can see in the next plot that the accuracy is higher when mtry reach to 4 randomly sampled variables.  
 ```{r train rf model}
 set.seed(3, sample.kind="Rounding") # if using R 3.5 or earlier, use `set.seed(3)`
 
@@ -823,7 +821,7 @@ train_rf <-
 train_rf$bestTune
 ```
 
-```{r figure 15 Plot the mtry selection by its accuracy, echo=FALSE}
+```{r figure 17 Plot the mtry selection by its accuracy, echo=FALSE}
 plot(train_rf)
 ```
   * Fit the model with best parameter 
@@ -834,15 +832,15 @@ fit_rf <-
                nodesize = train_rf$bestTune$mtry)
 ``` 
 The accuracy improve as we add more trees until about 20 trees where accuracy stabilize
-```{r figure 16 Plot ntree, echo=FALSE}
+```{r figure 18 Plot ntree, echo=FALSE}
 plot(fit_rf)
 ```
-Random forest calculate the variable importance over ensembles of randomized trees.
+Random forest calculates the variable importance over ensembles of randomized trees.
 
-The Random Forest first important variable is 'Odor'. In addition, all general char. are participaing in the classification and have a predictive power. 
+The Random Forest first important variable is 'Odor'. In addition, all general characteristics are participating in the classification and have a predictive power. 
 
-Down the list, the less important featurs 'gill attachment' and 'veil color'. Those 2 featurs also wasn't needed in the tuned ct model that got 100% accuracy. Means, we can omit them. 
-```{r figure 17 plot variable importhance - rf, echo=FALSE, out.width='70%'}
+Down the list, the less important features 'gill attachment' and 'veil color'. Those 2 features also wasn't needed in the tuned ct model that got 100% accuracy. Means, we can omit them. 
+```{r figure 19 plot variable importance rf, echo=FALSE, out.width='70%'}
 varImp(fit_rf)%>%
   mutate(char = rownames(.))%>%
   ggplot(aes(x = reorder(char,Overall),y = Overall))+
@@ -852,7 +850,7 @@ varImp(fit_rf)%>%
        x = "characteristics", y = "variable importance")
 ```
   
-```{r rf var importanc list, include=FALSE}
+```{r rf var importance list, include=FALSE}
 # var importance list 
 rf_var_imp <- 
   varImp(fit_rf) %>%
@@ -876,11 +874,11 @@ rbind(c(model_2_accuracy,
 ```
   * Model results
 
-Random forest achived 100% accuracy.
+Random forest achieved 100% accuracy.
 
-Random forest chooses features randomly during the training process. Therefore, it does not depend highly on any specific set of features. It is more difficult to interpret than a single desicion tree, but the randomized feature selection makes random forest much more accurate than a decision tree.
+Random forest chooses features randomly during the training process. Therefore, it does not depend highly on any specific set of features. It is more difficult to interpret than a single classification tree, but the randomized feature selection makes random forest much more accurate than a decision tree.
 
-This is why rf could handel 'Odor' better than the simple first model of class. tree. 
+Therefore, rf could handle 'Odor' better than the simple first model of classification trees. 
 
 In addition, both rf and ct did not need 'gill attachment' and 'veil color' as a predictors for a perfect accuracy.
 
@@ -888,21 +886,23 @@ In addition, both rf and ct did not need 'gill attachment' and 'veil color' as a
 
 The more accurate prediction requires more trees while large number of trees can make the algorithm too slow and ineffective for real-time predictions.
 
+With 10-folds cross validation, the overall runtime of the model was 24 seconds: 21 seconds for training, less than one second for fitting, and less than one second for predicting. 
+
 When dealing with big amount of data to train and predict, it's faster to use the 'Rborist' package rather than 'randomForest'
 
 ## Model 3 - k-nearest neighbors 
 
 K-nearest neighbors is a pattern recognition algorithm that uses training datasets to find the k closest relatives in future examples. 
 
-When Knn is used in classification with catrgorical data, the basic idea is that each category is mapped into a real number (dummy) in some optimal way, and then knn classification is performed using those numeric values. 
+When KNN is used in classification with categorical data, the basic idea is that each category is mapped into a real number (dummy) in some optimal way, and then KNN classification is performed using those numeric values. 
 
-  * For this model will use the conclusions from the previos models that achived 100% accuracy and omit the two unneccery featurse
+  * For this model will use the conclusions from the previous models that achieved 100% accuracy and omit the two unnecessary features.
 
   * Creating a new data set 
   
-Since Knn cannot handle characters, we'll convert the mushrooms data set into data set with boolean variables, as the following overview. Then, we'll split the data into training and test sets. 
-```{r dataset for knn, include=FALSE}
-# use the original dataset to create sanitized dataset ommited the 2 features and the veil type we dropped at the begining
+Since KNN cannot handle characters, we'll convert the mushrooms data set into canonical data set, as the following overview. Then, we'll split the data into training and test sets. 
+```{r dataset for KNN, include=FALSE}
+# use the original dataset to create sanitized dataset omitted the 2 features and the veil type we dropped at the beginning
 mushrooms_sanitized <-  mushrooms_df %>% select (-gill.attachment, -veil.color, -veil.type)
 
 # creating a new data frame with just the first column of mushroom class (poison vs. edible)
@@ -929,12 +929,12 @@ for (i in colnames(mushrooms_sanitized)) {
 
 ```
 
-```{r dataset for knn overview, echo=FALSE}
+```{r dataset for KNN overview, echo=FALSE}
 # overview of the first 7 rows of the new datadet
 head(mushrooms_break_down[,1:7],10)
 ```
   * We'll split the new data set into training and test sets 
-```{r split knn dataset, include=FALSE}
+```{r split KNN dataset, include=FALSE}
 # split the new data into training and test sets 
 set.seed(1, sample.kind="Rounding") # if using R 3.5 or earlier, use `set.seed(1)`
 
@@ -956,16 +956,18 @@ test_set <- test_set %>% select(-class)
 train_set <- train_set %>% select(-class)
 ```
 
-  * Train knn model and find best parameters
+  * Train KNN model and find best parameters
 
-We'll use 10-folds cross-validation to avoid overfitting, and set a tune_grid for K in order to find the optimal parameter
-```{r train knn }
+We'll use here 5-folds cross-validation to avoid overfitting, since setting the number of folds to 10 increased the model runtime in 140% and achieved the same model accuracy.
+
+In addition, we'll set a tune_grid for K in order to find the optimal parameter
+```{r train KNN }
 set.seed(201, sample.kind="Rounding") # if using R 3.5 or earlier, use `set.seed(201)`
 train_control <- trainControl(method="cv", number = 5, p = 0.8)
 tune_grid <- data.frame(k = seq(1, 15, by=1))
 
 set.seed(74, sample.kind="Rounding") # if using R 3.5 or earlier, use `set.seed(74)`
-# Train knn model using "caret"
+# Train KNN model using "caret"
 train_knn <- 
   train(train_set, y, 
         method = "knn", 
@@ -974,19 +976,19 @@ train_knn <-
 # find optimal k
 train_knn$bestTune
 ```
-The model achive the highest accuracy with k=3, means 3 variables in each neighborhood.
+The model achieved the highest accuracy with k=3, means 3 variables in each neighborhood.
 
-In case of low accuracy, we can suspact the lowst K as overtaining of the model
-```{r figure 18 plot the selection of k by its accuracy, echo=FALSE}
+In case of low accuracy, we can suspect the lowest K as overtraining of the model
+```{r figure 20 plot the selection of k by its accuracy, echo=FALSE}
 plot(train_knn)
 ```
   * Fit the model with best parameter
-```{r fit knn}
+```{r fit KNN}
 fit_knn <- knn3(train_set, y, 
                 k = train_knn$bestTune$k)
 ```
   *Predict the outcome and report accuracy
-```{r predict knn, echo=FALSE}
+```{r predict KNN, echo=FALSE}
 y_hat_knn <- predict(fit_knn, test_set, type = "class")
 
 cm_knn <- confusionMatrix(y_hat_knn, y_test)
@@ -998,59 +1000,65 @@ rbind(c(model_3_accuracy,
 ```
   * Model results
 
-The low K=3 could lead us to an overtraining of the model, but even though and with the omission of two unneccery features, Knn achived 100% accuracy.  
+The low K=3 could lead us to an overtraining of the model, but even though and with the omission of two unnecessary features, KNN achieved 100% accuracy.  
 
   * limitation
-  
-Since Knn is based on the Euclidean distances, it unable to be applied directly on categorical data. In order to define the distance metrics for categorical variables, we need to preprocessing the dataset by transforming it to dummy variables that represent the categorical variables.
+
+  1. With 5-folds cross validation, the the overall runtime of the model was 97 seconds: 94 seconds for training, less than one second for fitting, and two seconds for predicting (10-folds cv increased the total runtime in 40 seconds and achieved the same model accuracy)
+
+  2. Since KNN is based on the Euclidean distances, it unable to be applied directly on categorical data. In order to define the distance metrics for categorical variables, we need to preprocessing the dataset by transforming it to dummy variables that represent the categorical variables.
+
+
 
 # The Models Results 
 
 ## The models accuracy
 
-Random forest, Knn and Classification trees(tuned - variables ommited) achived the perfect 100% accuracy.
+Random forest, KNN and Classification trees (1.2 tuned model - variables omitted) achieved the perfect 100% accuracy.
 
-The first two class. tree models (1, 1.1) achive high, but not enogh, accuracy while the latter got a fatal false-negative mistake by classifing poisonus as edible. 
+The first two Classification trees models (1, 1.1) achieved high, but not enough, accuracy while the latter got a fatal false-negative mistake by classifying poisonous as edible. 
 
 ```{r models accuracy, echo=FALSE}
 rbind("Classification Trees"= model_1_accuracy,
       "Classification Trees - only 'Visual Characteristics'" = model_1.1_accuracy,
       "Classification Trees - tuned" = model_1.2_accuracy,
       "Random Forest" = model_2_accuracy,
-      "Knn" = model_3_accuracy) %>% 
+      "KNN" = model_3_accuracy) %>% 
 knitr::kable()
 ```
-## The 15 most important featurs according to the 1.2 class. tree model and random forest
+## The 15 most important features according to the 1.2 Classification trees model and Random forest
 
 The next table represent the top 15 important variables (out of initial 21).
 
-Each one of the following models consider different featurs as most important. 
+Each one of the following models consider different features as most important. 
 
 Yet, 'spore.print.color' and 'gill.color' have large contribution to both of the models (those are highly correlated, since the gill is the part that produce the spore and it is only reasonable to share the color). 
 
-In addition, 'gill.attachment' and 'veil.color' ommited from Knn and Class.trees model while plaing a very negligible, if any, role in random forest clasifier 
+In addition, 'gill.attachment' and 'veil.color' omitted from KNN and Classification trees model while playing a very negligible, if any, role in random forest classifier.
 ```{r var imp comparison, echo=FALSE}
-print(data.frame("Class.trees"=ct_tuned_var_imp,"Random forest"=rf_var_imp))
+print(data.frame("Classification trees"=ct_tuned_var_imp,"Random forest"=rf_var_imp))
 ```
 
 # Conclusion
 
   * What types of machine learning models perform best on this dataset?
 
-Analysing and modeling the Mushrooms-classification data set lead us to a conclusion that models such as Knn and Random forest, which are more flexible and easy to train and tune, are better for classifying.
+Analyzing and modeling the Mushrooms classification data set lead us to a conclusion that models such as KNN and Random forest, which are more flexible and easier to train and tune, are better for classifying.
 
-The limitation of each of the Knn and rf models that discused at the end of each section, did not hurt or biased the results. For class.trees, in my opinion, the model couldn't handle well with the task, since we needed some rough adjustment, including ommiting the most important var ('Odor') in order to achive 100% accuracy. Second, the model was very sensitive to changes and changed the size of the tree in a significant way.       
+The limitation of each of the KNN and rf models that discussed at the end of each section, did not hurt or biased the results. In addition, rf performed better runtime- 422% faster than KNN runtime. 
+
+For classification trees, in my opinion, the model couldn't handle well with the task, since we needed some rough adjustments, including omitting the most important var ('Odor') in order to achieve 100% accuracy. Second, the model was very sensitive to changes and changed the size of the trees in a significant way.              
 
   * Which features are most indicative of a poisonous mushroom?
 
-We can see that ommiting 'gill.attachment' and 'veil.color' from **all** of the models led us to 100% accuracy. 
+We can see that omitting 'gill.attachment' and 'veil.color' from **all** of the models led us to 100% accuracy. 
 
-The common 4 top important features from class.trees(1.2) model and rf model are 'spore.print.color', 'gill.color', 'stalk.surface.above.ring', 'stalk.surface.below.ring' and we must not ommit tham. 
+The common 4 top important features from Classification trees (1.2) model and rf model are 'spore.print.color', 'gill.color', 'stalk.surface.above.ring', 'stalk.surface.below.ring' and we must not omit them. 
 
   * Future work
 
-As for the 'Odor', there is no certinty about its roll. 
+As for the 'Odor', there is no certainty about its roll. 
 
-I'd like to test some more classification algiritms such as 'Logistic Regression' and 'Support Vector Machines' to better ditrmain which algorithms perform best under its limitation and create a better stable list of featurs importance  
+I'd like to test some more classification algorithms such as 'Logistic Regression' and 'Support Vector Machines' to better determine which algorithms perform best under its limitation and create a better stable list of features importance.  
 
 

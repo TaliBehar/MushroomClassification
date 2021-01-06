@@ -41,7 +41,7 @@ tibble("class"=class(mushrooms), "nrow"=nrow(mushrooms), "ncol"=ncol(mushrooms))
 
 # The first row represent the class of the mushroom, while rows 2-23 represents
 # he mushrooms chcharacteristics. Moving forward, we'll learn about the mushrooms chcharacteristics
-# and their influence on the mashroom's claclassification
+# and their influence on the mushroom's claclassification
 glimpse(mushrooms)
 
 # The next table summarize  the variables class and levels
@@ -147,7 +147,7 @@ veil_ring_char <-
 grid.arrange(veil_ring_char[[1]],veil_ring_char[[2]],
              veil_ring_char[[3]], ncol=2, nrow=2)
 
-# miscellaneous
+# plot miscellaneous
 # figure 5 #
 other <- 
   lapply(names(train_set[,c(5,19:21)]),function(x){
@@ -265,18 +265,18 @@ rbind(c(model_1_accuracy,
 # Model 1.1 - Classification (decision) trees - only "Visual Characteristics" 
 
 # create new dataset, eliminate the general char
-visual_mashrooms <- 
+visual_mushrooms <- 
   mushrooms %>% 
   select(-odor, -habitat, -population, -spore.print.color)
 
 # split the new data into training and test sets 
 set.seed(1, sample.kind="Rounding") # if using R 3.5 or earlier, use `set.seed(1)`
 
-# Test_new will be 20% of new_mashrooms data
-visual_test_index <- createDataPartition(y = visual_mashrooms$class, times = 1, p = 0.2, list = FALSE)
+# Test_new will be 20% of visual_mushrooms data
+visual_test_index <- createDataPartition(y = visual_mushrooms$class, times = 1, p = 0.2, list = FALSE)
 
-train_visual <- visual_mashrooms %>% slice(-visual_test_index)
-test_visual <- visual_mashrooms %>% slice(visual_test_index)
+train_visual <- visual_mushrooms %>% slice(-visual_test_index)
+test_visual <- visual_mushrooms %>% slice(visual_test_index)
 # Remove test_index
 rm(visual_test_index)
 
@@ -327,7 +327,7 @@ varImp(fit_ct_visual)%>%
   ggplot(aes(x = reorder(char,Overall),y = Overall))+
   geom_bar(stat = "identity", fill="lightblue")+
   coord_flip()+
-  labs(title = "Variable importance for classification trees - tuned model", 
+  labs(title = "Variable importance for classification trees - visual model", 
        x = "characteristics", y = "variable importance")
 
 # Predict the outcome
@@ -341,27 +341,26 @@ rbind(c(model_1.1_accuracy,
         cm_ct_visual$byClass[c("Sensitivity","Specificity","Prevalence","Balanced Accuracy")])) %>%
   knitr::kable()
 
-# no change
 # remove the next objects
-rm(visual_mashrooms, test_visual, train_visual, y_visual, y_test_visual)
+rm(visual_mushrooms, test_visual, train_visual, y_visual, y_test_visual)
 
 #-----------------------------------------------
 
 # Model 1.2 - Classification (decision) trees - tuned
 
 # create new dataset, eliminate the general char, return spore.print.color
-tuned_mashrooms <- 
+tuned_mushrooms <- 
   mushrooms %>% 
   select(-odor, -habitat, -population)
 
 # split the new data into training and test sets 
 set.seed(1, sample.kind="Rounding") # if using R 3.5 or earlier, use `set.seed(1)`
 
-# Test_tuned will be 20% of new_mashrooms data
-tuned_test_index <- createDataPartition(y = tuned_mashrooms$class, times = 1, p = 0.2, list = FALSE)
+# Test_tuned will be 20% of tuned_mushrooms data
+tuned_test_index <- createDataPartition(y = tuned_mushrooms$class, times = 1, p = 0.2, list = FALSE)
 
-train_tuned <- tuned_mashrooms %>% slice(-tuned_test_index)
-test_tuned <- tuned_mashrooms %>% slice(tuned_test_index)
+train_tuned <- tuned_mushrooms %>% slice(-tuned_test_index)
+test_tuned <- tuned_mushrooms %>% slice(tuned_test_index)
 # Remove test_index
 rm(tuned_test_index)
 
@@ -396,13 +395,13 @@ fit_ct_tuned <- rpart(y_tuned ~ .,
                        control = rpart.control(cp = train_ct_tuned$bestTune$cp , minsplit = 20))
 
 # Plot the tree 
-# figure 13#
+# figure 15#
 rpart.plot(x = fit_ct_tuned, type =5, extra = 100, 
            box.palette = c("lightblue","orangered"), 
            fallen.leaves=TRUE, tweak = 1)
 
 # Graph variable importhance - ct visual
-# figure 14#
+# figure 16#
 varImp(fit_ct_tuned)%>%
   mutate(char = rownames(.))%>%
   ggplot(aes(x = reorder(char,Overall),y = Overall))+
@@ -430,7 +429,7 @@ rbind(c(model_1.2_accuracy,
   knitr::kable()
 
 # remove the next objects
-rm(test_tuned, train_tuned, y_tuned, y_test_tuned)
+rm(tuned_mushrooms,test_tuned, train_tuned, y_tuned, y_test_tuned)
 
 #---------------------------
 # Model 2 - Random Forest
@@ -452,7 +451,7 @@ train_rf <- train(train_set, y,
 train_rf$bestTune
 
 # Plot the mtry selection by its accuracy
-# figure 15#
+# figure 17#
 plot(train_rf)
 
 # Fit the model with best parameter 
@@ -461,11 +460,11 @@ fit_rf <- randomForest(train_set, y,
                        ntree = 200, 
                        nodesize = train_rf$bestTune$mtry)
 # Plot ntree 
-# figure 16#
+# figure 18#
 plot(fit_rf)
 
 # Graph variable importhance - rf
-# figure 17#
+# figure 19#
 varImp(fit_rf)%>%
   mutate(char = rownames(.))%>%
   ggplot(aes(x = reorder(char,Overall),y = Overall))+
@@ -499,7 +498,7 @@ rbind(c(model_2_accuracy,
 
 # creating a new data set - we'll have to convert our data to bulian (0/1) instead of characters 
 
-# use the original dataset to create sanitized dataset ommited the 2 features and the veil type we dropped at the begining
+# use the original dataset to create sanitized dataset omitted the 2 features and the veil type we dropped at the beginning
 mushrooms_sanitized <-  mushrooms_df %>% select (-gill.attachment, -veil.color, -veil.type)
 
 # creating a new data frame with just the first column of mushroom class (poison vs. edible)
@@ -548,13 +547,13 @@ y_test <- test_set$class
 test_set <- test_set %>% select(-class)
 train_set <- train_set %>% select(-class)
 
-# Train knn model and find best parameters 
+# Train KNN model and find best parameters 
 set.seed(201, sample.kind="Rounding") # if using R 3.5 or earlier, use `set.seed(201)`
 train_control <- trainControl(method="cv", number = 5, p = 0.8)
 tune_grid <- data.frame(k = seq(1, 15, by=1))
 
 set.seed(74, sample.kind="Rounding") # if using R 3.5 or earlier, use `set.seed(74)`
-# Train knn model using "caret"
+# Train KNN model using "caret"
 train_knn <- train(train_set, y, 
                    method = "knn", 
                    trControl = train_control,
@@ -563,7 +562,7 @@ train_knn <- train(train_set, y,
 train_knn$bestTune
 
 # plot the selection of k by its accuracy
-# figure 18 # 
+# figure 20 # 
 plot(train_knn)
 
 # fit the model with best parameter using "caret"
@@ -589,10 +588,10 @@ rbind("Classification Trees"= model_1_accuracy,
       "Classification Trees - only 'Visual Characteristics'" = model_1.1_accuracy,
       "Classification Trees - tuned" = model_1.2_accuracy,
       "Random Forest" = model_2_accuracy,
-      "Knn" = model_3_accuracy) %>% 
+      "KNN" = model_3_accuracy) %>% 
   knitr::kable()
 
-# The most important featurs according to the 1.2 class. tree model and random forest
-cbind.data.frame("Class. trees"=ct_tuned_var_imp,"Random forest"=rf_var_imp) %>%
+# The most important featurs according to the 1.2 Classification trees model and random forest
+cbind.data.frame("Classification trees"=ct_tuned_var_imp,"Random forest"=rf_var_imp) %>%
   knitr::kable()
 

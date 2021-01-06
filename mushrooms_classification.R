@@ -414,7 +414,9 @@ varImp(fit_ct_tuned)%>%
 # var importance list
 ct_tuned_var_imp <- varImp(fit_ct_tuned) %>%
   mutate(char = rownames(.)) %>% 
-  arrange(desc(varImp(fit_ct_tuned)$"Overall")) 
+  arrange(desc(varImp(fit_ct_tuned)$"Overall")) %>%
+  slice(1:15) %>% 
+  .$char 
 
 # Predict the outcome
 y_hat_ct_tuned <- predict(fit_ct_tuned, test_tuned, type = "class")
@@ -476,7 +478,8 @@ varImp(fit_rf)%>%
 rf_var_imp <- varImp(fit_rf) %>%
   mutate(char = rownames(.)) %>% 
   arrange(desc(varImp(fit_rf)$"Overall")) %>%
-  slice(1:10)
+  slice(1:15) %>% 
+  .$char
 
 # Predict the outcome  
 y_hat_rf <- predict(fit_rf, test_set, type = "class")

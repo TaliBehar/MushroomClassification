@@ -32,15 +32,16 @@ Each column contain it's own factors, represented by unique letters (see extensi
 section... < TODO>)
 
 ## Goal
- < from kaggle > 
 
-What types of machine learning models perform best on this dataset?
-Which features are most indicative of a poisonous mushroom?
+1. Detrmain which features are most indicative of a poisonous mushroom
+
+2. Detrmain what types of machine learning models perform best on 'Mushroom Classification' data set by achiving model accuracy of 100% 
 
 ## Variable Selection
 
 1.	**Y = class**
-    The outcome will be the class of the mushroom: e = edible, p = poisonous 
+
+  The outcome will be the class of the mushroom: e = edible, p = poisonous 
 
 2.	**The features**
 
@@ -58,6 +59,8 @@ The ML algorithms that was chosen to model the mushroom classification data set 
  
  * Train and fit the above algorithms using cross-validation and tuning methods
  
+ * Ommit unimportant featurs
+ 
  * Constract bulian data set for handling with Knn algorithm  
 
 ## Model Estimation
@@ -68,7 +71,13 @@ Overall accuracy is the simplest way to evaluate the algorithm when the outcomes
 
 ## Model Results 
 
+Random forest, Knn and Classification trees(model 1.2) achived the perfect 100% accuracy.
+
 ## Conclusion
+
+* The chosen models for clasifing mushrooms class are Random Forest and Knn
+
+* The most important featurs for the classification are 'spore.print.color', 'gill.color', 'stalk.surface.above.ring' and 'stalk.surface.below.ring' 
  
  
 # Data Preperation
@@ -215,19 +224,7 @@ train_set <- train_set %>% select(-class)
 
 ### cap and bruises characteristics
 
-```{r figure 1 cap characteristics, echo=FALSE, out.width = '80%'}
-cap_char <- 
-  lapply(names(train_set[,1:4]),function(x){
-    train_set %>%
-      ggplot(aes_string(y,x,fill=y,color=y))+
-      geom_jitter()+
-      theme(legend.position = "none")
-})
-# plot all 4 cap figures in 2 columns and 2 rows 
-grid.arrange(cap_char[[1]],cap_char[[2]],cap_char[[3]],cap_char[[4]],
-             ncol=2, nrow=2)
-```
-  * Cap
+ * Cap
   
     - Differently shaped and colored upper part of the mushroom that protects the gills. In other words, the cap is the top of the mushroom. 
 
@@ -246,20 +243,22 @@ grid.arrange(cap_char[[1]],cap_char[[2]],cap_char[[3]],cap_char[[4]],
     
     
   * We can see that there is no significant difference in the cap characteristics or bruises that indicate class. Yet, sunken shape, purple color and green color will always indicate edible mushroom.
-  
-### gill characteristics
-```{r figure 2 gill characteristics, echo=FALSE, out.width = '80%'}
-gill_char <- 
-  lapply(names(train_set[,6:9]),function(x){
+
+```{r figure 1 cap characteristics, echo=FALSE, out.width = '80%'}
+cap_char <- 
+  lapply(names(train_set[,1:4]),function(x){
     train_set %>%
       ggplot(aes_string(y,x,fill=y,color=y))+
       geom_jitter()+
       theme(legend.position = "none")
 })
-# plot all 4 gill figures in 2 columns and 2 rows 
-grid.arrange(gill_char[[1]],gill_char[[2]],gill_char[[3]],gill_char[[4]],
+# plot all 4 cap figures in 2 columns and 2 rows 
+grid.arrange(cap_char[[1]],cap_char[[2]],cap_char[[3]],cap_char[[4]],
              ncol=2, nrow=2)
 ```
+ 
+### gill characteristics
+
   * Fertile spore-producing part of the mushroom, located under the cap. 
 
     - Gill attachment: attached=a, descending=d, free=f, notched=n
@@ -273,21 +272,21 @@ grid.arrange(gill_char[[1]],gill_char[[2]],gill_char[[3]],gill_char[[4]],
  
  
   * We can see differences in the gill characteristics that may indicate the mushrooms class. Buff and Green gill colors will always indicate poisonous.   
-
-### stalk characteristics
-```{r figure 3 stalk characteristics, echo=FALSE, out.width = '80%'}
-stalk_char <- 
-  lapply(names(train_set[,10:15]),function(x){
+```{r figure 2 gill characteristics, echo=FALSE, out.width = '80%'}
+gill_char <- 
+  lapply(names(train_set[,6:9]),function(x){
     train_set %>%
       ggplot(aes_string(y,x,fill=y,color=y))+
       geom_jitter()+
       theme(legend.position = "none")
 })
-# plot all 6 stalk figures in 2 columns and 3 rows 
-grid.arrange(stalk_char[[1]],stalk_char[[2]],stalk_char[[3]],
-             stalk_char[[4]],stalk_char[[5]],stalk_char[[6]],
-             ncol=2, nrow=3)
+# plot all 4 gill figures in 2 columns and 2 rows 
+grid.arrange(gill_char[[1]],gill_char[[2]],gill_char[[3]],gill_char[[4]],
+             ncol=2, nrow=2)
 ```
+
+### stalk characteristics
+
   * Stem, Axis supporting the mushroom’s cap. The role of the mushroom stalk is to raise the cap above the grass, twigs or stones that are close to the ground
   
     - Stalk shape: enlarging=e, tapering=t
@@ -305,19 +304,22 @@ grid.arrange(stalk_char[[1]],stalk_char[[2]],stalk_char[[3]],
 
   * Buff, cinnamon and yellow stalk color above ring will always indicate poisonous mushroom. All other stalk characteristics distributing in different frequancy between the mushrooms class.  
 
-### veil and Ring characteristics
-```{r figure 4 veil ring characteristics, echo=FALSE, out.width = '80%'}
-veil_ring_char <- 
-  lapply(names(train_set[,16:18]),function(x){
+```{r figure 3 stalk characteristics, echo=FALSE, out.width = '80%'}
+stalk_char <- 
+  lapply(names(train_set[,10:15]),function(x){
     train_set %>%
       ggplot(aes_string(y,x,fill=y,color=y))+
       geom_jitter()+
       theme(legend.position = "none")
-  })
-# plot all 3 veil figures in 2 columns and 2 rows 
-grid.arrange(veil_ring_char[[1]],veil_ring_char[[2]],
-             veil_ring_char[[3]], ncol=2, nrow=2)
+})
+# plot all 6 stalk figures in 2 columns and 3 rows 
+grid.arrange(stalk_char[[1]],stalk_char[[2]],stalk_char[[3]],
+             stalk_char[[4]],stalk_char[[5]],stalk_char[[6]],
+             ncol=2, nrow=3)
 ```
+
+### veil and Ring characteristics
+
   * Veil
   
     - The thin membrane that covers the cap and stalk of an immature mushroom
@@ -337,20 +339,22 @@ grid.arrange(veil_ring_char[[1]],veil_ring_char[[2]],
   * Brown and orange veil color will always indicate edible mushroom
   
   * Mushrooms with large ring or no rings will always indicate poison.   
-  
-## General Characteristics
-```{r figure 5 other characteristics, echo=FALSE, out.width = '80%'}
-other <- 
-  lapply(names(train_set[,c(5,19:21)]),function(x){
+```{r figure 4 veil ring characteristics, echo=FALSE, out.width = '80%'}
+veil_ring_char <- 
+  lapply(names(train_set[,16:18]),function(x){
     train_set %>%
       ggplot(aes_string(y,x,fill=y,color=y))+
       geom_jitter()+
       theme(legend.position = "none")
   })
-# plot 4 assorted figures in 2 columns and 2 rows 
-grid.arrange(other[[1]],other[[2]],other[[3]],other[[4]], ncol=2, nrow=2)
+# plot all 3 veil figures in 2 columns and 2 rows 
+grid.arrange(veil_ring_char[[1]],veil_ring_char[[2]],
+             veil_ring_char[[3]], ncol=2, nrow=2)
 ```
-  * Odor - The smell of the mushroom
+
+## General Characteristics
+
+ * Odor - The smell of the mushroom
 
     - almond=a, anise=l, creosote=c, fishy=y, foul=f, musty=m, none=n, pungent=p, spicy=s
     
@@ -379,7 +383,18 @@ grid.arrange(other[[1]],other[[2]],other[[3]],other[[4]], ncol=2, nrow=2)
     
     - Poisonus mushrooms can grow anywhere but can never be found on waste
 
-
+```{r figure 5 other characteristics, echo=FALSE, out.width = '80%'}
+other <- 
+  lapply(names(train_set[,c(5,19:21)]),function(x){
+    train_set %>%
+      ggplot(aes_string(y,x,fill=y,color=y))+
+      geom_jitter()+
+      theme(legend.position = "none")
+  })
+# plot 4 assorted figures in 2 columns and 2 rows 
+grid.arrange(other[[1]],other[[2]],other[[3]],other[[4]], ncol=2, nrow=2)
+```
+ 
 ## Relationships and correlation in the data 
 
 All the above characteristics are building one mushroom. since that, It can be assumed that all the feathures are correlated with the class of the mushroom and among themselves.
@@ -406,7 +421,6 @@ If $p.value <= {\alpha}$: significant result, reject $H_{0}$, dependent.
 If $p.value > {\alpha}$: not significant result, fail to reject $H_{0}$, independent.
 
 We'll set $p.value = 0.5$ 
-
 
 ### Relationships between the characteristics by ${\chi}^2$ test 
 ```{r car p.value matrix, include=FALSE}
@@ -455,18 +469,18 @@ Among the common classification algorithms are clssification/desicion trees, Ran
 
 Since the correlation matrix showed that the featurs are dependent, we will start with all the 21 featurs. 
 
-## Model 1 - Classification (decision) trees
+## Model 1 - Classification trees
 
   * Classification / decision trees, are used in prediction problems where the outcome is
 categorical. We form predictions by calculating which class is the most common
 among the training set observations within the partition.
 
   * The default **splitting** method for classification called "Gini Impurity" ("Gini Index") and is the following: 
-
+  
 $$ Gini(j) = {\displaystyle\sum_{k=1}^K\hat{p}_{j,k}(1-\hat{p}_{j,k})} $$
-When $\hat{p}_{j,k}$= the proportion of observation in partition ${j}$ that are in class ${k}$
+We define $\hat{p}_{j,k}$= the proportion of observation in partition ${j}$ that are in class ${k}$
 
-"Gini Impurity" seek to partition observation into subset that have the same class, when all observations in a group fall into single category, then $Gini(j)=0 $  
+"Gini Impurity" seek to partition observation into subset that have the same class, when all observations in a group fall into single category, then $Gini(j)=0$  
 
 ```{r eval=FALSE, include=FALSE}
 # (https://www.edureka.co/blog/implementation-of-decision-tree/) 
@@ -515,7 +529,7 @@ The final tree is the following. The top node contain the entire sample, each of
 
 As we predicted before, 'Odor' is a dominant feature and is the first to be splited, The next feature to be splited is 'Spore print color', while the last is 'Stalk root'. 
 
-Notice that the Desicion tree algoritm splitted 4 features out of 21. 
+Notice that the Class. trees algoritm splitted 4 features out of 21. 
 ```{r figure 10 Plot the tree, echo=FALSE, out.width = '75%'}
 rpart.plot(x = fit_ct, type =5, extra = 100, 
            box.palette = c("lightblue","orangered"), 
@@ -554,9 +568,9 @@ rbind(c(model_1_accuracy,
 ```
   * Model result
 
-Classification tree model achived "only" 0.998 of accuracy, with false-positibe mistake of 3 edible observation that predicted as poisonuse. In true-life terms, this mistake is forgiven, but it wasn't if the opposite has occure. 
+Classification trees model achived "only" 0.998 of accuracy, with false-positibe mistake of 3 edible observation that predicted as poisonuse. In true-life terms, this mistake is forgiven, but it wasn't if the opposite has occure. 
 
-## Model 1.1 - Classification (decision) trees - only "Visual Characteristics" 
+## Model 1.1 - Classification trees - only "Visual Characteristics" 
 
 The previos model took into considaration the entire variables and we saw that 2 of the general char. played a significant role in the splitting and importance. Yet, we got accuracy of 99.8% and false-positive mistake of 3 observation. 
 
@@ -656,7 +670,7 @@ rbind(c(model_1.1_accuracy,
 ```
   * Model results
   
-The visual model achived worse result than the original - 99.6% accuracy.  
+The visual model achived lower result than the original - 99.6% accuracy.  
 
 There is 5 false- positive results (5 edible predicted poisonus) and one false-negative result (poisonus predicted as edible). 
 
@@ -666,7 +680,7 @@ Means, one of the general char. is essential for the classification process.
 rm(visual_mashrooms, test_visual, train_visual, y_visual, y_test_visual)
 ```
 
-# Model 1.2 - Classification (decision) trees - tuned
+# Model 1.2 - Classification trees - tuned
 
   * create new dataset, omit the general char, return spore.print.color
 ```{r tuned_mashrooms}
@@ -743,7 +757,9 @@ varImp(fit_ct_tuned)%>%
 ct_tuned_var_imp <- 
   varImp(fit_ct_tuned) %>%
   mutate(char = rownames(.)) %>% 
-  arrange(desc(varImp(fit_ct_tuned)$"Overall")) 
+  arrange(desc(varImp(fit_ct_tuned)$"Overall")) %>%
+  slice(1:15) %>% 
+  .$char
 ```
 
   * Predict and report accuracy
@@ -771,12 +787,20 @@ In addition, the model suggest that 'gill attachment', 'veil color', and 'veil t
 rm(test_tuned, train_tuned, y_tuned, y_test_tuned)
 ```
 
-<to do> add the model limitation from the book 
+  * Advantages of Classification trees
+  
+They are highly interpretable and easy to visualize (if small enough). They can model human decision processes and don’t require use of dummy predictors for categorical variables.
+
+  * Classification trees limitations
+
+The approach via recursive partitioning can easily over-train and is therefore a bit harder to train than. In terms of accuracy, it is rarely the best performing method since
+it is not very flexible and is highly unstable to changes in training data. That is Why we saw diffrences in the above models, when we ommited/add featurs. 
+
 
 ## Model 2 - Random Forest
 
-The Random forests combines multiple decision trees. Its goal is to improve prediction performance
-and reduce instability by averaging multiple decision trees.
+The Random forests combines multiple Class. trees. Its goal is to improve prediction performance
+and reduce instability by averaging multiple Class. trees.
 
   * Train rf model and find best parameters
 
@@ -833,7 +857,9 @@ varImp(fit_rf)%>%
 rf_var_imp <- 
   varImp(fit_rf) %>%
   mutate(char = rownames(.)) %>% 
-  arrange(desc(varImp(fit_rf)$"Overall"))
+  arrange(desc(varImp(fit_rf)$"Overall")) %>%
+  slice(1:15) %>% 
+  .$char
 ``` 
   * Predict the outcome 
 ```{r predict rf}  
@@ -858,16 +884,21 @@ This is why rf could handel 'Odor' better than the simple first model of class. 
 
 In addition, both rf and ct did not need 'gill attachment' and 'veil color' as a predictors for a perfect accuracy.
 
+  * Random forest limitations 
+
+The more accurate prediction requires more trees while large number of trees can make the algorithm too slow and ineffective for real-time predictions.
+
+When dealing with big amount of data to train and predict, it's faster to use the 'Rborist' package rather than 'randomForest'
 
 ## Model 3 - k-nearest neighbors 
 
-K nearest neighbors is a pattern recognition algorithm that uses training datasets to find the k closest relatives in future examples. 
+K-nearest neighbors is a pattern recognition algorithm that uses training datasets to find the k closest relatives in future examples. 
 
-When Knn is used in classification with catrgorical data, the basic idea is that each category is mapped into a real number in some optimal way, and then knn classification is performed using those numeric values. 
+When Knn is used in classification with catrgorical data, the basic idea is that each category is mapped into a real number (dummy) in some optimal way, and then knn classification is performed using those numeric values. 
 
   * For this model will use the conclusions from the previos models that achived 100% accuracy and omit the two unneccery featurse
 
-  * creating a new data set 
+  * Creating a new data set 
   
 Since Knn cannot handle characters, we'll convert the mushrooms data set into data set with boolean variables, as the following overview. Then, we'll split the data into training and test sets. 
 ```{r dataset for knn, include=FALSE}
@@ -902,7 +933,7 @@ for (i in colnames(mushrooms_sanitized)) {
 # overview of the first 7 rows of the new datadet
 head(mushrooms_break_down[,1:7],10)
 ```
-  * we'll split the new data set into training and test sets 
+  * We'll split the new data set into training and test sets 
 ```{r split knn dataset, include=FALSE}
 # split the new data into training and test sets 
 set.seed(1, sample.kind="Rounding") # if using R 3.5 or earlier, use `set.seed(1)`
@@ -949,12 +980,12 @@ In case of low accuracy, we can suspact the lowst K as overtaining of the model
 ```{r figure 18 plot the selection of k by its accuracy, echo=FALSE}
 plot(train_knn)
 ```
-  * fit the model with best parameter
+  * Fit the model with best parameter
 ```{r fit knn}
 fit_knn <- knn3(train_set, y, 
                 k = train_knn$bestTune$k)
 ```
-  * predict the outcome and report accuracy
+  *Predict the outcome and report accuracy
 ```{r predict knn, echo=FALSE}
 y_hat_knn <- predict(fit_knn, test_set, type = "class")
 
@@ -969,13 +1000,17 @@ rbind(c(model_3_accuracy,
 
 The low K=3 could lead us to an overtraining of the model, but even though and with the omission of two unneccery features, Knn achived 100% accuracy.  
 
+  * limitation
+  
+Since Knn is based on the Euclidean distances, it unable to be applied directly on categorical data. In order to define the distance metrics for categorical variables, we need to preprocessing the dataset by transforming it to dummy variables that represent the categorical variables.
+
 # The Models Results 
 
 ## The models accuracy
 
-Random forest, Knn and Classification trees(tuned - variable ommited) achived the perfect 100% accuracy.
+Random forest, Knn and Classification trees(tuned - variables ommited) achived the perfect 100% accuracy.
 
-The first two class. tree models achive high, but not enogh, accuracy while the latter got a fatal false-negative mistake by classifing poisonus as edible. 
+The first two class. tree models (1, 1.1) achive high, but not enogh, accuracy while the latter got a fatal false-negative mistake by classifing poisonus as edible. 
 
 ```{r models accuracy, echo=FALSE}
 rbind("Classification Trees"= model_1_accuracy,
@@ -985,14 +1020,37 @@ rbind("Classification Trees"= model_1_accuracy,
       "Knn" = model_3_accuracy) %>% 
 knitr::kable()
 ```
-## The most important featurs according to the 1.2 class. tree model and random forest
+## The 15 most important featurs according to the 1.2 class. tree model and random forest
 
+The next table represent the top 15 important variables (out of initial 21).
+
+Each one of the following models consider different featurs as most important. 
+
+Yet, 'spore.print.color' and 'ring.color' have large contribution to both of the models. 
+
+In addition, 'gill.attachment' and 'veil.color' ommited from Knn and Class.trees model while plaing a very negligible, if any, role in random forest clasifier 
 ```{r var imp comparison, echo=FALSE}
-cbind.data.frame("Class. trees"=ct_tuned_var_imp,"Random forest"=rf_var_imp) %>%
-  knitr::kable()
+print(data.frame("Class.trees"=ct_tuned_var_imp,"Random forest"=rf_var_imp))
 ```
 
+# Conclusion
 
+  * What types of machine learning models perform best on this dataset?
 
-# conclusion 
+Analysing and modeling the Mushrooms-classification data set lead us to a conclusion that models such as Knn and Random forest, which are more flexible and easy to train and tune, are better for classifying.
+
+The limitation of each of the Knn and rf models that discused at the end of each section, did not hurt or biased the results. For class.trees, in my opinion, the model couldn't handle well with the task, since we needed some rough adjustment, including ommiting the most important var ('Odor') in order to achive 100% accuracy. Second, the model was very sensitive to changes and changed the size of the tree in a significant way.       
+
+  * Which features are most indicative of a poisonous mushroom?
+
+We can see that ommiting 'gill.attachment' and 'veil.color' from **all** of the models led us to 100% accuracy. 
+
+The common 4 top important features from class.trees(1.2) model and rf model are 'spore.print.color', 'gill.color', 'stalk.surface.above.ring', 'stalk.surface.below.ring' and we must not ommit tham. 
+
+  * Future work
+
+As for the 'Odor', there is no certinty about its roll. 
+
+I'd like to test some more classification algiritms such as 'Logistic Regression' and 'Support Vector Machines' to better ditrmain which algorithms perform best under its limitation and create a better stable list of featurs importance  
+
 

@@ -3,7 +3,7 @@ title: "HarvardX; Data Science Capstone"
 subtitle: 
   - "Choose Your Own Project"
   - "Mushroom Classification"
-author: "Tali Behar"
+
 date: "December 2020"
 output:
   pdf_document:
@@ -28,14 +28,14 @@ we wonder about their type.
 this dataset includes descriptions of hypothetical samples corresponding to 23 species of gilled mushrooms in the Agaricus and Lepiota Family Mushroom drawn from The Audubon Society Field Guide to North American Mushrooms (1981). Each species is identified as definitely edible, definitely poisonous, or of unknown edibility and not recommended. This latter class was combined with the poisonous one. The Guide clearly states that there is no simple rule for determining the edibility of a mushroom; no rule like "leaflets three, let it be'' for Poisonous Oak and Ivy.
 
 The data is categorical. 
-Each column contain it's own factors, represented by unique letters (see extension on 
+Each column contain its own factors, represented by unique letters (see extension on 
 section... < TODO>)
 
 ## Goal
 
-1. Detrmain which features are most indicative of a poisonous mushroom
+1. Determine which features are most indicative of a poisonous mushroom.
 
-2. Detrmain what types of machine learning models perform best on 'Mushroom Classification' data set by achiving model accuracy of 100% 
+2. Determine what types of ML models perform best on 'Mushroom Classification' data set by achieving model accuracy of 100%, in a reasonable runtime. 
 
 ## Variable Selection
 
@@ -45,39 +45,39 @@ section... < TODO>)
 
 2.	**The features**
 
-  For classifing mushrooms, wheater it's outside or through pictures it's important to be femiliar with all the details about them. I choose to take all of the 22 mushrooms characteristics to be used for the prediction; odor, population,	habitat, bruises, cap, gill, stalk, veil, ring and spore-print-color.
+  For classifying mushrooms, whether it's outside or through images, it's important to be familiar with all the details about them. I chose to take all of the 22 mushrooms characteristics to be used for the prediction; Odor, population,	habitat, bruises, cap, gill, stalk, veil, ring and spore-print-color.
     
 ## Method 
   
-The ML algorithms that was chosen to model the mushroom classification data set comes from the family of **Classification Algorithms** and are: Random forest, Classification trees, and K-nearest neighbors    
+The ML algorithms that were chosen to model the mushroom classification dataset come from the family of **Classification Algorithms** and are: Random forest, Classification trees, and K-nearest neighbors (KNN).    
 
- * Divide the mushrooms dataset randomly to train set and test set 
+ * Divide the mushrooms dataset randomly to train set and test set. 
  
- * Visualize the distribution of the characteristics between e/p class and find thoghtful insights 
+ * Visualize the distribution of the characteristics between e/p class and find meaningful insights.
  
  * Visualize the relationships and correlation in the data - once between the characteristics and the class, and once among the characteristics themselves. 
  
- * Train and fit the above algorithms using cross-validation and tuning methods
+ * Train and fit the above algorithms using cross-validation and tuning methods.
  
- * Ommit unimportant featurs
+ * Omit the unimportant features.
  
- * Constract bulian data set for handling with Knn algorithm  
+ * Constract canonical dataset for applying the KNN algorithm.  
 
 ## Model Estimation
 
-Evaluate model performance based on its **overall accuracy** 
+Evaluate model performance based on its **overall accuracy** and runtime.
 
 Overall accuracy is the simplest way to evaluate the algorithm when the outcomes are categorical. This method is simply reporting the proportion of cases that were correctly predicted in the test set.  
 
 ## Model Results 
 
-Random forest, Knn and Classification trees(model 1.2) achived the perfect 100% accuracy.
+Random forest, KNN and Classification trees (model 1.2) achieved the perfect 100% accuracy, but the RF model was the fastest among them, by ~<TODO>%.
 
 ## Conclusion
 
-* The chosen models for clasifing mushrooms class are Random Forest and Knn
+* The chosen models for classifying mushrooms class are Random Forest and KNN.
 
-* The most important featurs for the classification are 'spore.print.color', 'gill.color', 'stalk.surface.above.ring' and 'stalk.surface.below.ring' 
+* The most important features for the classification are 'spore.print.color', 'gill.color', 'stalk.surface.above.ring' and 'stalk.surface.below.ring' 
  
  
 # Data Preperation
@@ -110,7 +110,7 @@ library(ggplot2)
 library(randomForest)
 ```
 
-## Loading Mushroom Classification Dataset
+## Loading Mushrooms Classification Dataset
 ```{r}
 # Importing the data - read csv file 
 # TODO: change to local file
@@ -119,7 +119,7 @@ mushrooms_df <- read.csv("D:/OneDrive/Documents/Tali/Tali data science studies/M
 mushrooms <- mushrooms_df
 ```
 
-## Get A Glimpse Of Mushroom Classification Dataset
+## Get A Glimpse Of Mushrooms Classification Dataset
 ```{r dim table, echo=FALSE}
 tibble("class"=class(mushrooms), "nrow"=nrow(mushrooms), "ncol"=ncol(mushrooms)) %>%
   knitr::kable()
@@ -132,32 +132,32 @@ glimpse(mushrooms)
 
 **columns** 
 
-The first column represent the class of the mushroom "e" for edible and "P" for poisonous.
+The first column represents the class of the mushroom, "e" for edible and "P" for poisonous.
 
-Columns 2:23 represents the mushrooms chcharacteristics as the following: 
+Columns 2:23 represents the mushrooms characteristics as the following: 
 
 Odor, Population,	Habitat, Bruises, Cap, Gill, Stalk, Veil, Ring and Spore-print-color. 
 
 We can distinguish between visual and general characteristics: 
 
-  * Visual characteristics can be measured from a picture, such as the color and shaps of the mushroom's cap, bruises, gill, stalk, veil and ring. 
+  * Visual characteristics can be measured by sight (images), such as the color and shapes of the mushroom's cap, bruises, gill, stalk, veil and ring. 
 
-  * General characteristics can be evaluated in-person, such as the mushroom's odor, the habitat, population and Spore-print-color. 
+  * General characteristics must be evaluated in-person, such as the mushroom's odor, the habitat, population and Spore-print-color. 
 
 **Rows** 
 
-Each row represent one observation on one mushroom and comtain its class and unique characteristics.
+Each row represent one observation on one mushroom and contain its class and unique characteristics.
 
 
-Moving forward, we'll learn about the mushrooms chcharacteristics and their influence on the mashroom's claclassification.
+Moving forward, we'll learn about the mushrooms characteristics and their influence on the mashroom's classification.
 
-### The dataset is categoriacl
+### The dataset is categorical
   
-The next table specify the class of the outcome and featurs (factor), and the levels of each of the factors. 
+The next table specifies the class of the outcome and features (factor), and the levels of each of the factors. 
   
-'veil.type' has only 1 level which means not contributing info as a feature. We'll remove it from the data and won't use it as a feature. 
+'veil.type' has only 1 level which is not contributing infomation as a feature. We'll remove it from the data and won't use it as a feature. 
 
-   <TODO> look for NA's , write about "?"
+Some observations contain '?' in <TBS>, and we chose to use it as a regular factor, as the distribution is equal between edible and poisonous, and if we omitted these rows, we would lose 40% of the data.
 ```{r class and levels summarize , echo=FALSE}
 cbind.data.frame("mushrooms characteristics"= names(mushrooms),
                  "class"= sapply(mushrooms,(function(x){class(x)})), 
@@ -176,7 +176,7 @@ The prevalence of the mashrooms class in the dataset is almost about the same .
   
 52% of the observations belong to edible type and 48% are poisonous, which means we should not expect biased prediction. 
 
-Predicting poisonous mushroom as edible can be a terrible mistake, so in addition to the accuracy of the model, we'll also take a look of the other parts of the 'confusionMatrix', that contains the sensitivity, specificity, prevalence and balanced accuracy.    
+Predicting poisonous mushrooms as edible can be a terrible mistake, so in addition to the accuracy of the model, we'll also take a look of the other parts of the 'confusionMatrix', that contains the sensitivity, specificity, prevalence and balanced accuracy.    
 ```{r mushroom type, echo=FALSE}
 mushrooms %>% 
   group_by(class) %>% 
@@ -188,7 +188,7 @@ mushrooms %>%
 
 Here is a quick summary of the variables and their count. 
 
-since the full table is very wide, we'll present only the first 5 columns
+Since the full table is very wide, we'll present only the first 5 columns
 ```{r dataset summary, echo=FALSE}
 mushrooms[,1:5] %>%
   summary()
@@ -218,7 +218,7 @@ test_set <- test_set %>% select(-class)
 train_set <- train_set %>% select(-class)
 ```
 
-# Mushroom classification Dataset Overview 
+# Mushrooms classification Dataset Overview 
 
 ## Visual Characteristics
 
@@ -237,7 +237,7 @@ train_set <- train_set %>% select(-class)
 
   * Bruises
 
-    - Mushroom bruising involves nicking the top and bottom of the mushroom cap and observing any colour changes
+    - Mushroom bruising involves nicking the top and bottom of the mushroom cap and observing any color changes.
 
     - Bruises: bruises=t, no=f
     
@@ -271,7 +271,7 @@ grid.arrange(cap_char[[1]],cap_char[[2]],cap_char[[3]],cap_char[[4]],
     green=r, orange=o, pink=p, purple=u, red=e, white=w, yellow=y
  
  
-  * We can see differences in the gill characteristics that may indicate the mushrooms class. Buff and Green gill colors will always indicate poisonous.   
+  * We can see differences in the gill characteristics that may indicate the mushroom's class. Buff and Green gill colors will always indicate poisonous.   
 ```{r figure 2 gill characteristics, echo=FALSE, out.width = '80%'}
 gill_char <- 
   lapply(names(train_set[,6:9]),function(x){
@@ -285,9 +285,9 @@ grid.arrange(gill_char[[1]],gill_char[[2]],gill_char[[3]],gill_char[[4]],
              ncol=2, nrow=2)
 ```
 
-### stalk characteristics
+### Stalk characteristics
 
-  * Stem, Axis supporting the mushroom’s cap. The role of the mushroom stalk is to raise the cap above the grass, twigs or stones that are close to the ground
+  * Stem, Axis supporting the mushroom’s cap. The role of the mushroom stalk is to raise the cap above the grass, twigs or stones that are close to the ground.
   
     - Stalk shape: enlarging=e, tapering=t
 
@@ -336,7 +336,7 @@ grid.arrange(stalk_char[[1]],stalk_char[[2]],stalk_char[[3]],
     - Ring type: cobwebby=c, evanescent=e, flaring=f, large=l, none=n, pendant=p, sheathing=s, zone=z
 
 
-  * Brown and orange veil color will always indicate edible mushroom
+  * Brown and orange veil color will always indicate edible mushroom.
   
   * Mushrooms with large ring or no rings will always indicate poison.   
 ```{r figure 4 veil ring characteristics, echo=FALSE, out.width = '80%'}
@@ -374,14 +374,14 @@ grid.arrange(veil_ring_char[[1]],veil_ring_char[[2]],
   
     - abundant=a, clustered=c, numerous=n, scattered=s, several=v, solitary=y
     
-    - Poisonus mushrooms can never be found abundant or in numerous numbers
+    - Poisonus mushrooms can never be found abundant or in numerous numbers.
   
   
   * Habitat
   
     - grasses=g, leaves=l, meadows=m, paths=p, urban=u, waste=w, woods=d
     
-    - Poisonus mushrooms can grow anywhere but can never be found on waste
+    - Poisonus mushrooms can grow anywhere but can never be found on waste.
 
 ```{r figure 5 other characteristics, echo=FALSE, out.width = '80%'}
 other <- 
@@ -397,10 +397,10 @@ grid.arrange(other[[1]],other[[2]],other[[3]],other[[4]], ncol=2, nrow=2)
  
 ## Relationships and correlation in the data 
 
-All the above characteristics are building one mushroom. since that, It can be assumed that all the feathures are correlated with the class of the mushroom and among themselves.
+All the above characteristics are combining one mushroom. Since that, It can be assumed that all the features are correlated with the class of the mushroom and among themselves.
 
 In the above plots we noticed high influence of the odor on the mushroom class. 
-Yet, in order to select the best other featurs that have a strong predictive power, we need to see if they are correlated or not.  
+Yet, in order to select the best other features that have a strong predictive power, we need to see if they are correlated or not.  
 
 For building efficient predictive models, we would ideally only include variables that uniquely explain some amount of variance in the outcome.
 
@@ -408,19 +408,19 @@ For building efficient predictive models, we would ideally only include variable
 
 The **Chi-Square Test** (${\chi}^2$ test) of Independence determines whether there is an association between **categorical variables**.
 
-It compares two variables in a contingency table to see if they are related. In a more general sense, it tests to see whether distributions of categorical variables differ from each another. 
+It compares two variables in a contingency table to see if they are related. In a more general sense, it tests to see whether distributions of categorical variables differ from each other. 
 
 It is a nonparametric test.
 
 A chi square test will produce a p-value which will tell us if the test results are significant or not.
 
-Under the null hypothesis $H_{0}$ - the categorical variables are independent
+Under the null hypothesis $H_{0}$ - the categorical variables are independent.
 
 If $p.value <= {\alpha}$: significant result, reject $H_{0}$, dependent.
 
 If $p.value > {\alpha}$: not significant result, fail to reject $H_{0}$, independent.
 
-We'll set $p.value = 0.5$ 
+We'll set $p.value = 0.05$ 
 
 ### Relationships between the characteristics by ${\chi}^2$ test 
 ```{r car p.value matrix, include=FALSE}
@@ -434,7 +434,7 @@ chi2_test_for_char <-
 }) %>% 
   matrix(nrow=21, byrow = FALSE)
 ```
-The row and the columns represent the 21 features. The diagonal represent the correlation of the feature with himself (always correlated).  
+The rows and the columns represent the 21 features. The diagonal represent the correlation of the feature with itself (always correlated).  
 
 We can see that all the features correlated with each other except 'veil color' and 'ring number' that are indepandent from each other  
 ```{r figure 6 car p.value matrix, echo=FALSE, out.width = '80%'}
@@ -461,13 +461,13 @@ plot(chi2_test_for_class,
      key=list(side=3, cex.axis=0.6))
 ```
 
-# Methods and analysis
+# Methods and Analysis
 
-A classification algorithm is a function that weighs the input features so that the output separates one class into positive values and the other into negative values. Classifier training is performed to identify the weights that provide the most accurate and best separation of the two classes of data. <TODO> write in other words
+A classification algorithm is a function that weighs the input features so that the output separates one class into positive values and the other into negative values. Classifier training is performed to identify the weights that provide the most accurate and best separation of the two classes of data.
 
-Among the common classification algorithms are clssification/desicion trees, Random forest, and Knn. The later works slight differntly than the two first.  
+Among the common classification algorithms are clssification/desicion trees, Random forest, and KNN. The latter works slightly differnt than the first two. 
 
-Since the correlation matrix showed that the featurs are dependent, we will start with all the 21 featurs. 
+Since the correlation matrix showed that the features are dependent, we will start with all the 21 features. 
 
 ## Model 1 - Classification trees
 
@@ -490,7 +490,7 @@ We define $\hat{p}_{j,k}$= the proportion of observation in partition ${j}$ that
 ```
   * Train ct model and find best parameters
   
-In order to avoid overfitting, we'll use 10-folds cross validation. The splits be done by 80%-20% training and test set 
+In order to avoid overfitting, we'll use 10-folds cross validation. The splits are done by 80%-20% training and test set. 
 ```{r train ct model}
 train_control <- trainControl(method="cv", number = 10, p = 0.8) # use 10-folds cross-validation 
 tune_grid <- data.frame(cp = seq(0.0, 0.2, len=30)) # find the best value for cp
@@ -505,9 +505,9 @@ train_ct <-
 # Find best cp value
 train_ct$bestTune
 ```
-The complexity parameter (cp) is the minimum improvement in the model needed at each node. 
+The complexity parameter (cp) is the minimum improvement in the model that is needed in each node. 
 
-When cp=0 than the tree is fully grown and no need to prune it.  
+When cp=0 then the tree is fully grown and no need to prune it.  
 ```{r figure 8 Plot the cp selection by its accuracy, echo=FALSE}
 plot(train_ct)
 ```
@@ -523,26 +523,26 @@ fit_ct <-
 ```{r figure 9 Plot size of the tree (nodes) by cp, echo=FALSE}
 plotcp(fit_ct)
 ```
-The above graph shows that the cross validation relative error (X-val) reaching the minimal value for a tree of size 6, which correspond to a complexity parameter of 0. 
+The above graph shows that the cross validation relative error (X-val) reaches the minimal value for a tree of size 6, which corresponds to a complexity parameter of 0. 
 
-The final tree is the following. The top node contain the entire sample, each of the remaining nodes contains a subset of the sample in the node directly above it. 
+The final tree is the following. The top node contain the entire sample, each of the remaining nodes contain a subset of the sample in the node directly above it. 
 
-As we predicted before, 'Odor' is a dominant feature and is the first to be splited, The next feature to be splited is 'Spore print color', while the last is 'Stalk root'. 
+As we predicted before, 'Odor' is a dominant feature and is the first to be splitted, the next feature to be splitted is 'Spore print color', while the last is 'Stalk root'. 
 
-Notice that the Class. trees algoritm splitted 4 features out of 21. 
+Notice that the classification trees algoritm splitted 4 features out of 21. 
 ```{r figure 10 Plot the tree, echo=FALSE, out.width = '75%'}
 rpart.plot(x = fit_ct, type =5, extra = 100, 
            box.palette = c("lightblue","orangered"), 
            fallen.leaves=TRUE, tweak = 1)
 ```
-    * variable importhance 
+    * Variable importance 
 
-The importance of the variable calculated by "Gini Importance " or "mean decrease gini" 
+The importance of the variable calculated by "Gini Importance" or "mean decrease gini" 
 
 "Gini importance" calculates each feature importance as the sum over the number of splits that include the feature, proportionally to the number of samples it splits.
 
-We can interperate it as how valuable or neaded this variable to the split.
-We can see that 8 out of the 21 featurs did not contribute any information to the splits , but "Stalk" char. had valuable influence overall.  
+We can interpret it as how valuable or needed this variable to the split.
+We can see that 8 out of the 21 features did not contribute any information to the splits , but "Stalk" characteristics had valuable influence overall.  
 ```{r figure 11 Graph variable importhance ct, echo=FALSE, out.width = '70%'}
 varImp(fit_ct)%>%
   mutate(char = rownames(.))%>%
@@ -1026,7 +1026,7 @@ The next table represent the top 15 important variables (out of initial 21).
 
 Each one of the following models consider different featurs as most important. 
 
-Yet, 'spore.print.color' and 'ring.color' have large contribution to both of the models. 
+Yet, 'spore.print.color' and 'gill.color' have large contribution to both of the models (those are highly correlated, since the gill is the part that produce the spore and it is only reasonable to share the color). 
 
 In addition, 'gill.attachment' and 'veil.color' ommited from Knn and Class.trees model while plaing a very negligible, if any, role in random forest clasifier 
 ```{r var imp comparison, echo=FALSE}

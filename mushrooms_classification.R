@@ -14,6 +14,7 @@ if(!require(rpart)) install.packages("rpart", repos = "http://cran.us.r-project.
 if(!require(rpart.plot)) install.packages("rpart.plot", repos = "http://cran.us.r-project.org")
 if(!require(ggplot2)) install.packages("ggplot2", repos = "http://cran.us.r-project.org")
 if(!require(randomForest)) install.packages("randomForest", repos = "http://cran.us.r-project.org")
+if(!require(rstudioapi)) install.packages("randomForest", repos = "http://cran.us.r-project.org")
 
 library(readr) # for reading csv file 
 library(tidyverse)
@@ -25,12 +26,16 @@ library(rpart) # for fitting decision trees
 library(rpart.plot) # for decision trees plotting
 library(ggplot2)
 library(randomForest) # for random forest
+library(rstudioapi)
 
 ## 2. Loading Mushroom classification Dataset
 
-# Importing the data - read csv file 
-# TODO: change to local file
-mushrooms_df <- read.csv("D:/OneDrive/Documents/Tali/Tali data science studies/MushroomClassification/mushrooms.csv")
+# Importing the data - read csv file locally
+# Note: original dataset can be found here: https://www.kaggle.com/uciml/mushroom-classification
+
+# Getting the path of your current open file
+setwd(dirname(rstudioapi::getActiveDocumentContext()$path ))
+mushrooms_df <- read.csv("mushrooms.csv")
 mushrooms <- mushrooms_df
 
 ## 3. Get A Glimpse Of Mushroom classification Dataset

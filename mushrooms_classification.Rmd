@@ -838,7 +838,7 @@ In addition, both rf and ct did not need 'gill attachment' and 'veil color' as a
 
 ## Model 3 - k-nearest neighbors 
 
-### creating a new data frame 
+  * creating a new data frame 
 
 creating a new data frame with just the first column of mushroom class (poison vs. edible)
 ```{r dataset for knn, include=FALSE}
@@ -889,8 +889,7 @@ test_set <- test_set %>% select(-class)
 train_set <- train_set %>% select(-class)
 ```
 
-### Train knn model and find best parameters 
-
+  * Train knn model and find best parameters 
 ```{r train knn }
 set.seed(201, sample.kind="Rounding") # if using R 3.5 or earlier, use `set.seed(201)`
 train_control <- trainControl(method="cv", number = 5, p = 0.8)
@@ -921,12 +920,101 @@ y_hat_knn <- predict(fit_knn, test_set, type = "class")
   * Report accuracy 
 ```{r report knn accuracy }
 cm_knn <- confusionMatrix(y_hat_knn, y_test)
-cm_knn
+cm_knn$table
+model_3_accuracy <- cm_knn$overall["Accuracy"]
+rbind(c(model_3_accuracy, 
+        cm_knn$byClass[c("Sensitivity","Specificity","Prevalence","Balanced Accuracy")])) %>%
+  knitr::kable()
 ```
 
-```{r model 3 accuracy ,include=FALSE}
-model_3_accuracy <- cm_knn$overall["Accuracy"]
+## Model 3.1 - k-nearest neighbors - tuned 
+
+```{r mushrooms_sanitized }
+mushrooms_sanitized <- mushrooms %>% select (-gill.attachment, -veil.color, -veil.type) 
 ```
+
+```{r convert sanitized and split, include=FALSE}
+mushrooms_break_down <- mushrooms_sanitized[1:1]
+
+# removing it from the original data frame as we don't want to iterate over it by mistake
+mushrooms_sanitized$class <- NULL
+
+# iterating the column names in the original data frame (without the class column)
+for (i in colnames(mushrooms_sanitized)) {
+  print(paste('going over column:', i))
+  # Extracting factor levels from mushroom. Using [[]] in order to extract it as factor and not subset it as a dataframe.
+  # more here:  https://rpubs.com/tomhopper/brackets and https://www.datamentor.io/r-programming/data-frame/
+  # Note that we can't use '$' e.g. mushrooms$i as this format expects a real static name
+  current_column_levels <- levels(mushrooms_sanitized[[i]])
+  print(paste('found levels:', list(current_column_levels)))
+  for (j in levels(mushrooms_sanitized[[i]])) {
+    print(paste('adding column for level:', j))
+    next_column_name = paste(i, '.', j, sep = "")
+    next_column <- ifelse(mushrooms_sanitized[i] == j,1,0)
+    mushrooms_break_down[next_column_name] <- next_column
+  }
+}
+
+head(mushrooms_break_down[,1:7],10)
+
+# split the new data into training and test sets 
+
+set.seed(1, sample.kind="Rounding") # if using R 3.5 or earlier, use `set.seed(1)`
+
+test_index <- createDataPartition(y = mushrooms_break_down$class, times = 1, p = 0.2, list = FALSE)
+
+train_set <- mushrooms_break_down %>% slice(-test_index)
+test_set <- mushrooms_break_down %>% slice(test_index)
+
+rm(test_index)
+
+# define the outcome (class of the mushrooms) = y  
+y <- train_set$class
+
+# restore the true y from test set
+y_test <- test_set$class
+
+# remove the outcome from training and test set
+test_set <- test_set %>% select(-class)
+train_set <- train_set %>% select(-class)
+```
+
+```{r Train fit predict knn tuned, include=FALSE}
+# Train knn tuned model and find best parameters 
+set.seed(201, sample.kind="Rounding") # if using R 3.5 or earlier, use `set.seed(201)`
+train_control <- trainControl(method="cv", number = 5, p = 0.8)
+tune_grid <- data.frame(k = seq(1, 15, by=1))
+
+set.seed(74, sample.kind="Rounding") # if using R 3.5 or earlier, use `set.seed(74)`
+# Train knn model using "caret"
+train_knn <- train(train_set, y, 
+                   method = "knn", 
+                   trControl = train_control,
+                   tuneGrid = tune_grid)
+# find optimal k
+train_knn$bestTune
+
+# fit the model with best parameter using "caret"
+fit_knn <- knn3(train_set, y, 
+                k = train_knn$bestTune$k)
+
+# predict the outcome
+y_hat_knn <- predict(fit_knn, test_set, type = "class")
+```
+  * Report accuracy 
+```{r tuned accuracy, echo=FALSE}
+cm_knn_tuned <- confusionMatrix(y_hat_knn_tuned, y_test)
+cm_knn_tuned$table
+model_3.1_accuracy <- cm_knn_tuned$overall["Accuracy"]
+rbind(c(model_3.1_accuracy, 
+        cm_knn_tuned$byClass[c("Sensitivity","Specificity","Prevalence","Balanced Accuracy")])) %>%
+  knitr::kable()
+```
+  * model results 
+
+
+
+
 
 # Models results 
 

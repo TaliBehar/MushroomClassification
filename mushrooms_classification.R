@@ -480,10 +480,9 @@ rbind(c(model_2_accuracy,
 #----------------------------------------------------
 # Model 3 - k-nearest neighbors 
 
+# for knn model, we'll have to convert our data to bulian (0/1) instead of characters
+
 # creating a new data frame with just the first column of mushroom class (poison vs. edible)
-
-
-
 mushrooms_break_down <- mushrooms[1:1]
 
 # removing it from the original data frame as we don't want to iterate over it by mistake
@@ -555,8 +554,94 @@ y_hat_knn <- predict(fit_knn, test_set, type = "class")
 
 # Report accuracy 
 cm_knn <- confusionMatrix(y_hat_knn, y_test)
-cm_knn
+cm_knn$table
 model_3_accuracy <- cm_knn$overall["Accuracy"]
+rbind(c(model_3_accuracy, 
+        cm_knn$byClass[c("Sensitivity","Specificity","Prevalence","Balanced Accuracy")])) %>%
+  knitr::kable()
+
+#----------------------------------------------------
+# Model 3.1 - k-nearest neighbors, eliminate gill.attachment and veil.color
+
+# eliminate 2 featurs
+mushrooms_sanitized <- mushrooms %>% select (-gill.attachment, -veil.color) 
+# creating a new data frame with just the first column of mushroom class (poison vs. edible)
+mushrooms_break_down <- mushrooms_sanitized[1:1]
+
+# removing it from the original data frame as we don't want to iterate over it by mistake
+mushrooms_sanitized$class <- NULL
+
+# iterating the column names in the original data frame (without the class column)
+for (i in colnames(mushrooms_sanitized)) {
+  print(paste('going over column:', i))
+  # Extracting factor levels from mushroom. Using [[]] in order to extract it as factor and not subset it as a dataframe.
+  # more here:  https://rpubs.com/tomhopper/brackets and https://www.datamentor.io/r-programming/data-frame/
+  # Note that we can't use '$' e.g. mushrooms$i as this format expects a real static name
+  current_column_levels <- levels(mushrooms_sanitized[[i]])
+  print(paste('found levels:', list(current_column_levels)))
+  for (j in levels(mushrooms_sanitized[[i]])) {
+    print(paste('adding column for level:', j))
+    next_column_name = paste(i, '.', j, sep = "")
+    next_column <- ifelse(mushrooms_sanitized[i] == j,1,0)
+    mushrooms_break_down[next_column_name] <- next_column
+  }
+}
+
+head(mushrooms_break_down[,1:7],10)
+
+# split the new data into training and test sets 
+
+set.seed(1, sample.kind="Rounding") # if using R 3.5 or earlier, use `set.seed(1)`
+
+test_index <- createDataPartition(y = mushrooms_break_down$class, times = 1, p = 0.2, list = FALSE)
+
+train_set <- mushrooms_break_down %>% slice(-test_index)
+test_set <- mushrooms_break_down %>% slice(test_index)
+
+rm(test_index)
+
+# define the outcome (class of the mushrooms) = y  
+y <- train_set$class
+
+# restore the true y from test set
+y_test <- test_set$class
+
+# remove the outcome from training and test set
+test_set <- test_set %>% select(-class)
+train_set <- train_set %>% select(-class)
+
+# Train knn model and find best parameters 
+set.seed(201, sample.kind="Rounding") # if using R 3.5 or earlier, use `set.seed(201)`
+train_control <- trainControl(method="cv", number = 5, p = 0.8)
+tune_grid <- data.frame(k = seq(1, 15, by=1))
+
+set.seed(74, sample.kind="Rounding") # if using R 3.5 or earlier, use `set.seed(74)`
+# Train knn model using "caret"
+train_knn_tuned <- train(train_set, y, 
+                    method = "knn", 
+                    trControl = train_control,
+                    tuneGrid = tune_grid)
+# find optimal k
+train_knn_tuned$bestTune
+
+# plot the selection of k by its accuracy
+# figure 18 # 
+plot(train_knn_tuned)
+
+# fit the model with best parameter using "caret"
+fit_knn_tuned <- knn3(train_set, y, 
+                  k = train_knn_tuned$bestTune$k)
+
+# predict the outcome
+y_hat_knn_tuned <- predict(fit_knn_tuned, test_set, type = "class")
+
+# Report accuracy 
+cm_knn_tuned <- confusionMatrix(y_hat_knn_tuned, y_test)
+cm_knn_tuned$table
+model_3.1_accuracy <- cm_knn_tuned$overall["Accuracy"]
+rbind(c(model_3.1_accuracy, 
+        cm_knn_tuned$byClass[c("Sensitivity","Specificity","Prevalence","Balanced Accuracy")])) %>%
+  knitr::kable()
 
 #---------------------------
 # summary of decision and rf 

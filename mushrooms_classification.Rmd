@@ -3,7 +3,7 @@ title: "HarvardX; Data Science Capstone"
 subtitle: 
   - "Choose Your Own Project"
   - "Mushroom Classification"
-
+author: "Tali Behar"
 date: "December 2020"
 output:
   pdf_document:
@@ -116,6 +116,8 @@ library(randomForest)
 ```{r}
 # Importing the data - read csv file 
 # TODO: change to local file
+
+
 mushrooms_df <- read.csv("D:/OneDrive/Documents/Tali/Tali data science studies/MushroomClassification/mushrooms.csv")
 
 mushrooms <- mushrooms_df
@@ -573,11 +575,11 @@ Classification trees model achieved "only" 0.998 of accuracy, with false-positiv
 
 ## Model 1.1 - Classification trees - only "Visual Characteristics" 
 
-The previous model took into consideration the entire variables and we saw that 2 of the general characteristics played a significant role in the splitting and importance. Yet, we got accuracy of 99.8% and false-positive mistake of 3 observation. 
+The previous model took into consideration all the variables and we saw that 2 of the general characteristics played a significant role in the splitting process and variable importance. Yet, we got accuracy of 99.8% and false-positive mistake of 3 observations. 
 
-Let's investigate a case which we are asking to classify a mushroom by an image. What are the best features for the classification would be? 
+Let's investigate a case which we are asking to classify a mushroom by an image. What would be the best features for the classification? 
 
-  * create new dataset, omit the general characteristics
+  * Create new dataset, omit the general characteristics
 ```{r new_mushrooms dataset}
 visual_mushrooms <- 
   mushrooms %>% 
@@ -633,7 +635,7 @@ fit_ct_visual <-
         method = "class", 
         control = rpart.control(cp = train_ct_visual$bestTune$cp , minsplit = 20))
 ```
-The cross validation relative error (X-val) reaching the minimal value for a tree of size 20, which correspond to a complexity parameter of 0. 
+The cross validation relative error (X-val) reaching the minimal value for a tree of size 20, which corresponds to a complexity parameter of 0. 
 This tree pruned with 16 more branches than the original tree. 
 ```{r figure 12 Plot size of the tree (nodes) by cp, echo=FALSE}
 plotcp(fit_ct_visual)
@@ -683,7 +685,7 @@ rm(visual_mushrooms, test_visual, train_visual, y_visual, y_test_visual)
 
 # Model 1.2 - Classification trees - tuned
 
-  * create new dataset, omit the general char, return spore.print.color
+  * Create new dataset, omit the general characters, return spore.print.color
 ```{r tuned_mushrooms}
 tuned_mushrooms <- 
   mushrooms %>% 
@@ -777,9 +779,9 @@ rbind(c(model_1.2_accuracy,
   * Model results
   
 The model achieved a perfect accuracy of 100%. 
-It can be assumed that 'Odor' that was a dominant feature in the original model was "stand in the way" toward a perfect prediction. Smell can be very confusing sometimes. 
+It can be assumed that 'Odor' that was a dominant feature in the original model was "stand in the way" towards a perfect prediction. Smell can be very confusing sometimes. 
 
-In addition, the model suggests that 'gill attachment', 'veil color', and 'veil type' does not contributing information to the model and therefore are not needed, alongside with 'odor', 'population' and 'habitat' 
+In addition, the model suggests that 'gill attachment', 'veil color', and 'veil type' do not contribute information to the model and therefore are not needed, alongside with 'odor', 'population' and 'habitat' 
 
 ```{r remove objects, include=FALSE}
 # remove the next objects
@@ -792,7 +794,7 @@ Classification trees are highly interpretable and easy to visualize (if small en
 
   * Classification trees limitations
 
-The approach via recursive partitioning can easily over-train and is therefore a bit harder to train than. In terms of accuracy, it is rarely the best performing method since it is not very flexible and is highly unstable to changes in training data. That is Why we such big differences in the above models (particularly in the size of the trees), when we omitted/add features. 
+The approach via recursive partitioning can easily over-train and is therefore a bit harder to train. In terms of accuracy, it is rarely the best performing method since it is not very flexible and is highly unstable to changes in training data. That is why we saw such big differences in the above models (particularly in the size of the trees), when we omitted/added features. 
 
 
 ## Model 2 - Random Forest
@@ -802,7 +804,7 @@ and reduce instability by averaging multiple Classification trees.
 
   * Train rf model and find best parameters
 
-Same here, we will use 10-folds cross validation and set a tune_grid for mtry (number of variables randomly sampled as candidates at each split). We can see in the next plot that the accuracy is higher when mtry reach to 4 randomly sampled variables.  
+Same here, we will use 10-folds cross validation and set a tune_grid for "mtry" (number of variables randomly sampled as candidates at each split). We can see in the next plot that the accuracy is higher when "mtry" reaches to 4 randomly sampled variables.  
 ```{r train rf model}
 set.seed(3, sample.kind="Rounding") # if using R 3.5 or earlier, use `set.seed(3)`
 
@@ -831,7 +833,7 @@ fit_rf <-
                ntree = 200, 
                nodesize = train_rf$bestTune$mtry)
 ``` 
-The accuracy improve as we add more trees until about 20 trees where accuracy stabilize
+The accuracy improves as we added more trees until about 20 trees where accuracy stabilized
 ```{r figure 18 Plot ntree, echo=FALSE}
 plot(fit_rf)
 ```
@@ -839,7 +841,7 @@ Random forest calculates the variable importance over ensembles of randomized tr
 
 The Random Forest first important variable is 'Odor'. In addition, all general characteristics are participating in the classification and have a predictive power. 
 
-Down the list, the less important features 'gill attachment' and 'veil color'. Those 2 features also wasn't needed in the tuned ct model that got 100% accuracy. Means, we can omit them. 
+Down the list, the less important features 'gill attachment' and 'veil color'. Those 2 features also weren't needed in the tuned ct model that got 100% accuracy. Meaning, we can omit them. 
 ```{r figure 19 plot variable importance rf, echo=FALSE, out.width='70%'}
 varImp(fit_rf)%>%
   mutate(char = rownames(.))%>%
@@ -976,7 +978,7 @@ train_knn <-
 # find optimal k
 train_knn$bestTune
 ```
-The model achieved the highest accuracy with k=3, means 3 variables in each neighborhood.
+The model achieved the highest accuracy with k=3, meaning 3 variables in each neighborhood.
 
 In case of low accuracy, we can suspect the lowest K as overtraining of the model
 ```{r figure 20 plot the selection of k by its accuracy, echo=FALSE}
@@ -1004,9 +1006,9 @@ The low K=3 could lead us to an overtraining of the model, but even though and w
 
   * limitation
 
-  1. With 5-folds cross validation, the the overall runtime of the model was 97 seconds: 94 seconds for training, less than one second for fitting, and two seconds for predicting (10-folds cv increased the total runtime in 40 seconds and achieved the same model accuracy)
+  1. With 5-folds cross validation, the overall runtime of the model was 97 seconds: 94 seconds for training, less than one second for fitting, and two seconds for predicting (10-folds cv increased the total runtime in 40 seconds and achieved the same model accuracy)
 
-  2. Since KNN is based on the Euclidean distances, it unable to be applied directly on categorical data. In order to define the distance metrics for categorical variables, we need to preprocessing the dataset by transforming it to dummy variables that represent the categorical variables.
+  2. Since KNN is based on the Euclidean distances, it unable to be applied directly on categorical data. In order to define the distance metrics for categorical variables, we need to preprocess the dataset by transforming it to dummy variables that represent the categorical variables.
 
 
 
@@ -1032,7 +1034,7 @@ The next table represent the top 15 important variables (out of initial 21).
 
 Each one of the following models consider different features as most important. 
 
-Yet, 'spore.print.color' and 'gill.color' have large contribution to both of the models (those are highly correlated, since the gill is the part that produce the spore and it is only reasonable to share the color). 
+Yet, 'spore.print.color' and 'gill.color' have large contribution to both of the models (those are highly correlated, since the gill is the part that produces the spore and it is only reasonable to share the color). 
 
 In addition, 'gill.attachment' and 'veil.color' omitted from KNN and Classification trees model while playing a very negligible, if any, role in random forest classifier.
 ```{r var imp comparison, echo=FALSE}
@@ -1043,7 +1045,7 @@ print(data.frame("Classification trees"=ct_tuned_var_imp,"Random forest"=rf_var_
 
   * What types of machine learning models perform best on this dataset?
 
-Analyzing and modeling the Mushrooms classification data set lead us to a conclusion that models such as KNN and Random forest, which are more flexible and easier to train and tune, are better for classifying.
+Analyzing and modeling the Mushrooms classification dataset lead us to a conclusion that models such as KNN and Random forest, which are more flexible and easier to train and tune, are better for classifying.
 
 The limitation of each of the KNN and rf models that discussed at the end of each section, did not hurt or biased the results. In addition, rf performed better runtime- 422% faster than KNN runtime. 
 
@@ -1059,6 +1061,6 @@ The common 4 top important features from Classification trees (1.2) model and rf
 
 As for the 'Odor', there is no certainty about its roll. 
 
-I'd like to test some more classification algorithms such as 'Logistic Regression' and 'Support Vector Machines' to better determine which algorithms perform best under its limitation and create a better stable list of features importance.  
+I'd like to test some more classification algorithms such as 'Logistic Regression' and 'Support Vector Machines' to better determine which algorithms perform best under their limitations and create a better stable list of features importance.  
 
 

@@ -1,8 +1,10 @@
 ---
 title: "HarvardX; Data Science Capstone"
-subtitle: 
-  - "Choose Your Own Project"
-  - "Mushroom Classification"
+subtitle: |
+  | Choose Your Own Project
+  
+  | Mushroom Classification
+  
 author: "Tali Behar"
 date: "December 2020"
 output:
@@ -23,9 +25,10 @@ When I was searching for a topic for the CYO project, I came accross a huge data
 
 ## Background
 Our dataset is taken from: https://www.kaggle.com/uciml/mushroom-classification
+
 This dataset includes descriptions of hypothetical samples corresponding to 23 species of gilled mushrooms in the Agaricus and Lepiota Family Mushroom drawn from The Audubon Society Field Guide to North American Mushrooms (1981). Each species is identified as definitely edible, definitely poisonous, or of unknown edibility and not recommended. The latter class was combined with the poisonous one. The Guide clearly states that there is no simple rule for determining the edibility of a mushroom; no rule like "leaflets three, let it be" for Poisonous Oak and Ivy.
 
-The data is categorical- each column contain its own factors, represented by unique letters (see extension on section 2.3)
+The data is categorical - each column contain its own factors, represented by unique letters (see extension on section 2.3)
 
 ## Goal
 
@@ -77,7 +80,8 @@ Random forest, KNN and Classification trees (model 1.2) achieved the perfect 100
 
 * The most important features for the classification are 'spore.print.color', 'gill.color', 'stalk.surface.above.ring' and 'stalk.surface.below.ring' 
  
- 
+\newpage
+
 # Data Preparation
 
 ## Installing Required Packages
@@ -110,11 +114,11 @@ library(randomForest)
 
 ## Loading Mushrooms Classification Dataset
 
-  * Note: this project was developed on R version 3.6.1 and might not be compatible with newer versions
+Note: this project was developed on R version 3.6.1 and might not be compatible with newer versions
 ```{r}
 # Importing the data - read csv file locally
 # Note: original dataset can be found here: https://www.kaggle.com/uciml/mushroom-classification
-# Getting the path of your current open file
+
 mushrooms_df <- read.csv("mushrooms.csv")
 mushrooms <- mushrooms_df
 ```
@@ -218,6 +222,7 @@ test_set <- test_set %>% select(-class)
 train_set <- train_set %>% select(-class)
 ```
 
+\newpage
 # Mushrooms classification Dataset Overview 
 
 ## Visual Characteristics
@@ -271,7 +276,7 @@ grid.arrange(cap_char[[1]],cap_char[[2]],cap_char[[3]],cap_char[[4]],
     green=r, orange=o, pink=p, purple=u, red=e, white=w, yellow=y
  
  
-  * We can see differences in the gill characteristics that may indicate the mushroom's class. Buff and Green gill colors will always indicate poisonous.   
+  * We can see differences in the gill characteristics that may indicate the mushroom's class, especially the color. Buff and Green gill colors will always indicate poisonous.   
 ```{r figure 2 gill characteristics, echo=FALSE, out.width = '80%'}
 gill_char <- 
   lapply(names(train_set[,6:9]),function(x){
@@ -644,7 +649,7 @@ rpart.plot(x = fit_ct_visual, type =5, extra = 100,
 ```
  * Variable importance  
 
-Stalk still have large influence on the splitting, while ring type has the highest 'mean decrease Gini' (used to be zero in the original tree), means that gill type (the first var. to split) and the ring type is highly correlated.
+Stalk still have large influence on the splitting, while ring type has the highest 'mean decrease Gini' (used to be zero in the original tree), means that gill color (the first var. to split) and the ring type is highly correlated.
 ```{r figure 14 variable importance tuned ct tuned, echo=FALSE, out.width='70%'}
 varImp(fit_ct_visual)%>%
   mutate(char = rownames(.))%>%
@@ -679,7 +684,7 @@ Means, one of the general characteristics is essential for the classification pr
 rm(visual_mushrooms, test_visual, train_visual, y_visual, y_test_visual)
 ```
 
-# Model 1.2 - Classification trees - tuned
+## Model 1.2 - Classification trees - tuned
 
   * Create new dataset, omit the general characters, return spore.print.color
 ```{r tuned_mushrooms}
@@ -777,7 +782,7 @@ rbind(c(model_1.2_accuracy,
 The model achieved a perfect accuracy of 100%. 
 It can be assumed that 'Odor' that was a dominant feature in the original model was "stand in the way" towards a perfect prediction. Smell can be very confusing sometimes. 
 
-In addition, the model suggests that 'gill attachment', 'veil color', and 'veil type' do not contribute information to the model and therefore are not needed, alongside with 'odor', 'population' and 'habitat' 
+In addition, the model suggests that 'gill attachment', 'veil color', and 'veil type' do not contribute information to the model and therefore are not needed, alongside with 'odor', 'population' and 'habitat'. 
 
 ```{r remove objects, include=FALSE}
 # remove the next objects
@@ -931,7 +936,6 @@ for (i in colnames(mushrooms_sanitized)) {
 # overview of the first 7 rows of the new datadet
 head(mushrooms_break_down[,1:7],10)
 ```
-  * We'll split the new data set into training and test sets 
 ```{r split KNN dataset, include=FALSE}
 # split the new data into training and test sets 
 set.seed(1, sample.kind="Rounding") # if using R 3.5 or earlier, use `set.seed(1)`
@@ -965,7 +969,7 @@ train_control <- trainControl(method="cv", number = 5, p = 0.8)
 tune_grid <- data.frame(k = seq(1, 15, by=1))
 
 set.seed(74, sample.kind="Rounding") # if using R 3.5 or earlier, use `set.seed(74)`
-# Train KNN model using "caret"
+
 train_knn <- 
   train(train_set, y, 
         method = "knn", 
@@ -985,7 +989,7 @@ plot(train_knn)
 fit_knn <- knn3(train_set, y, 
                 k = train_knn$bestTune$k)
 ```
-  *Predict the outcome and report accuracy
+  * Predict the outcome and report accuracy
 ```{r predict KNN, echo=FALSE}
 y_hat_knn <- predict(fit_knn, test_set, type = "class")
 
@@ -1049,7 +1053,7 @@ For classification trees, in my opinion, the model couldn't handle well with the
 
   * Which features are most indicative of a poisonous mushroom?
 
-We can see that omitting 'gill.attachment' and 'veil.color' from **all** of the models led us to 100% accuracy. 
+We can see that omitting 'gill.attachment' and 'veil.color' from the models led us to 100% accuracy. 
 
 The common 4 top important features from Classification trees (1.2) model and rf model are 'spore.print.color', 'gill.color', 'stalk.surface.above.ring', 'stalk.surface.below.ring' and we must not omit them. 
 

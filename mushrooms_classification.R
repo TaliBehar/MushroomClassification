@@ -268,7 +268,7 @@ rbind(c(model_1_accuracy,
   knitr::kable()
 
 #----------------------------
-# Model 1.1 - Classification (decision) trees - only "Visual Characteristics" 
+# Model 1.1 - Classification trees - only "Visual Characteristics" 
 
 # create new dataset, eliminate the general char
 visual_mushrooms <- 
@@ -352,7 +352,7 @@ rm(visual_mushrooms, test_visual, train_visual, y_visual, y_test_visual)
 
 #-----------------------------------------------
 
-# Model 1.2 - Classification (decision) trees - tuned
+# Model 1.2 - Classification trees - tuned
 
 # create new dataset, eliminate the general char, return spore.print.color
 tuned_mushrooms <- 
@@ -497,12 +497,12 @@ rbind(c(model_2_accuracy,
         cm_rf$byClass[c("Sensitivity","Specificity","Prevalence","Balanced Accuracy")])) %>%
   knitr::kable()
 
-#----------------------------------------------------
+#-------------------------------
 # Model 3 - k-nearest neighbors 
 
 # For this model will use the conclusions from the previos models that achived 100% accuracy and omit the two unneccery featurse
 
-# creating a new data set - we'll have to convert our data to bulian (0/1) instead of characters 
+# creating a new data set - we'll have to convert our data to canonical form (0/1) instead of characters 
 
 # use the original dataset to create sanitized dataset omitted the 2 features and the veil type we dropped at the beginning
 mushrooms_sanitized <-  mushrooms_df %>% select (-gill.attachment, -veil.color, -veil.type)

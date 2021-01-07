@@ -109,6 +109,8 @@ library(randomForest)
 ```
 
 ## Loading Mushrooms Classification Dataset
+
+  * Note: this project was developed on R version 3.6.1 and might not be compatible with newer versions
 ```{r}
 # Importing the data - read csv file locally
 # Note: original dataset can be found here: https://www.kaggle.com/uciml/mushroom-classification
@@ -116,7 +118,7 @@ library(randomForest)
 mushrooms_df <- read.csv("mushrooms.csv")
 mushrooms <- mushrooms_df
 ```
-
+  
 ## Get A Glimpse Of Mushrooms Classification Dataset
 ```{r dim table, echo=FALSE}
 tibble("class"=class(mushrooms), "nrow"=nrow(mushrooms), "ncol"=ncol(mushrooms)) %>%

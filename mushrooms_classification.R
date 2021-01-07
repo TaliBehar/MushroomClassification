@@ -1,5 +1,7 @@
 # Choose Your Own Project - Mushroom classification
 
+## Note: this project was developed on R version 3.6.1 and might not be compatible with newer versions
+
 ## Data Preperation
 
 ## 1. Installing required packeges

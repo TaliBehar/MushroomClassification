@@ -56,7 +56,6 @@ cbind.data.frame("mushrooms characteristics"= names(mushrooms),
   mutate(char = rownames(.)) %>% 
   select(-char)%>%
   knitr::kable()
-# <TODO> look for NA's 
 
 # veil.type has only 1 level, which means not contributing info as a feature; we'll remove it
 mushrooms$veil.type<-NULL

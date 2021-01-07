@@ -18,24 +18,20 @@ knitr::opts_chunk$set(echo = TRUE, fig.align="center", out.width = '55%',
 
 ## Overview
 
-we like to walk increased the walking during covid time, we encounter mushrooms when walking in the woods in our area, last fall our yard was full of mushrooms that popped up during the night. 
-different typs in different areas, according to the type of soil, sun exposure, grass. 
-we wonder about their type. 
-<to do> take some quotes from Wiki 
+During Covid-19 time, I started taking daily walks around the neighberhood, usually in the same path. I then started noticing an interesting sight, which is hunderds of mushrooms growing everytime after it rains (and I live in a very rainy area). They had different shapes, colors, texture and size, depending on where they grew. I read a bit in wikipedia about different kinds of mushrooms, in the hope that there is an easy way to determine whether a mushroom is edible (or even touchable), but it is far from being the case.
+When I was searching for a topic for the CYO project, I came accross a huge dataset about mushrooms, and couldn't resist the opportunity to analyze it.
 
 ## Background
- < from kaggle > 
-this dataset includes descriptions of hypothetical samples corresponding to 23 species of gilled mushrooms in the Agaricus and Lepiota Family Mushroom drawn from The Audubon Society Field Guide to North American Mushrooms (1981). Each species is identified as definitely edible, definitely poisonous, or of unknown edibility and not recommended. This latter class was combined with the poisonous one. The Guide clearly states that there is no simple rule for determining the edibility of a mushroom; no rule like "leaflets three, let it be'' for Poisonous Oak and Ivy.
+Our dataset is taken from: https://www.kaggle.com/uciml/mushroom-classification
+This dataset includes descriptions of hypothetical samples corresponding to 23 species of gilled mushrooms in the Agaricus and Lepiota Family Mushroom drawn from The Audubon Society Field Guide to North American Mushrooms (1981). Each species is identified as definitely edible, definitely poisonous, or of unknown edibility and not recommended. The latter class was combined with the poisonous one. The Guide clearly states that there is no simple rule for determining the edibility of a mushroom; no rule like "leaflets three, let it be" for Poisonous Oak and Ivy.
 
-The data is categorical. 
-Each column contain its own factors, represented by unique letters (see extension on 
-section... < TODO>)
+The data is categorical- each column contain its own factors, represented by unique letters (see extension on section 2.3)
 
 ## Goal
 
 1. Determine which features are most indicative of a poisonous mushroom.
 
-2. Determine what types of ML models perform best on 'Mushroom Classification' data set by achieving model accuracy of 100%, in a reasonable runtime. 
+2. Determine what types of ML models perform best on 'Mushroom Classification' dataset by achieving model accuracy of 100%, in a reasonable runtime. 
 
 ## Variable Selection
 

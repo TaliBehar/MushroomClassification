@@ -14,7 +14,7 @@ if(!require(rpart)) install.packages("rpart", repos = "http://cran.us.r-project.
 if(!require(rpart.plot)) install.packages("rpart.plot", repos = "http://cran.us.r-project.org")
 if(!require(ggplot2)) install.packages("ggplot2", repos = "http://cran.us.r-project.org")
 if(!require(randomForest)) install.packages("randomForest", repos = "http://cran.us.r-project.org")
-if(!require(rstudioapi)) install.packages("randomForest", repos = "http://cran.us.r-project.org")
+if(!require(rstudioapi)) install.packages("rstudioapi", repos = "http://cran.us.r-project.org")
 
 library(readr) # for reading csv file 
 library(tidyverse)

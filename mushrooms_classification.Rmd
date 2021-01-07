@@ -117,9 +117,7 @@ library(randomForest)
 # Importing the data - read csv file locally
 # Note: original dataset can be found here: https://www.kaggle.com/uciml/mushroom-classification
 # Getting the path of your current open file
-setwd(dirname(rstudioapi::getActiveDocumentContext()$path ))
 mushrooms_df <- read.csv("mushrooms.csv")
-
 mushrooms <- mushrooms_df
 ```
 
